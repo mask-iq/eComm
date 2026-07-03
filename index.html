@@ -6,11 +6,10 @@
 <title>سوق الحيّ — متجرك الصغير المتكامل</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
 /* ============================================================
-   TOKENS
-   لون أساسي: أخضر زمردي عميق (هوية "سوق"), ذهبي دافئ للتمييز،
-   عنابي للتنبيهات/الشارات، عاجي دافئ للخلفية.
+   TOKENS — الوضع النهاري (افتراضي) + الوضع الليلي
    ============================================================ */
 :root{
   --ink:#16302c;
@@ -29,6 +28,22 @@
   --shadow:0 14px 34px rgba(22,48,44,.12);
   --shadow-lg:0 24px 60px rgba(22,48,44,.22);
 }
+[data-theme="dark"]{
+  --ink:#eef3ef;
+  --ink-soft:#a9c2ba;
+  --emerald:#1a5f5a;
+  --emerald-2:#227a72;
+  --gold:#e0ac45;
+  --gold-soft:#f0cd85;
+  --plum:#c25b8c;
+  --ivory:#0c211e;
+  --paper:#122d29;
+  --line:#1f4842;
+  --danger:#e2695d;
+  --ok:#4fb37e;
+  --shadow:0 14px 34px rgba(0,0,0,.35);
+  --shadow-lg:0 24px 60px rgba(0,0,0,.5);
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{
@@ -37,6 +52,7 @@ body{
   font-family:'Cairo',system-ui,sans-serif;
   min-height:100vh;
   padding-bottom:70px;
+  transition:background .25s,color .25s;
 }
 h1,h2,h3,.display{font-family:'Markazi Text',serif;}
 img{max-width:100%;display:block;}
@@ -46,88 +62,9 @@ a{color:inherit;text-decoration:none;}
 .hidden{display:none !important;}
 ::selection{background:var(--gold-soft);}
 
-/* scallop divider — العنصر المميز البصري */
-.scallop{
-  height:22px;width:100%;
-  background:radial-gradient(circle at 10px 0, transparent 11px, var(--paper) 11.5px) top/22px 22px repeat-x;
-}
-.scallop.rev{
-  background:radial-gradient(circle at 10px 22px, transparent 11px, var(--paper) 11.5px) top/22px 22px repeat-x;
-}
-
-/* ============================================================
-   AUTH SCREEN
-   ============================================================ */
-#authScreen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:
-    radial-gradient(1200px 600px at 15% -10%, #1a4d49 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, #6b1c3f 0%, transparent 55%),
-    var(--emerald);
-}
-.auth-wrap{
-  width:100%;max-width:920px;
-  background:var(--paper);
-  border-radius:24px;
-  box-shadow:var(--shadow-lg);
-  overflow:hidden;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-}
-.auth-side{
-  background:
-    radial-gradient(600px 400px at 90% 110%, rgba(201,150,44,.35), transparent 60%),
-    linear-gradient(160deg,var(--emerald) 0%, #0a2d2e 100%);
-  color:#f4ead0;
-  padding:44px 36px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-}
-.brand-mark{
-  width:56px;height:56px;
-  border-radius:50% 50% 6px 6px;
-  background:linear-gradient(140deg,var(--gold),var(--gold-soft));
-  display:flex;align-items:center;justify-content:center;
-  font-size:26px;
-  box-shadow:0 8px 18px rgba(201,150,44,.4);
-}
-.auth-side h1{font-size:44px;line-height:1.15;margin-top:22px;font-weight:600;}
-.auth-side p{margin-top:14px;color:#cfe3dc;font-size:15px;line-height:1.8;max-width:34ch;}
-.side-note{font-size:13px;color:#9fc2b8;border-top:1px solid rgba(255,255,255,.15);padding-top:16px;margin-top:30px;}
-.auth-form-area{padding:40px 36px;}
-.tabs{display:flex;gap:6px;background:var(--ivory);border-radius:12px;padding:5px;margin-bottom:26px;}
-.tab-btn{flex:1;padding:11px;border-radius:9px;background:transparent;color:var(--ink-soft);font-weight:700;font-size:14.5px;transition:.2s;}
-.tab-btn.active{background:var(--emerald);color:#fff;box-shadow:0 6px 14px rgba(15,61,62,.25);}
-.field{margin-bottom:16px;}
-.field label{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
-input.auth-input,select.auth-input{
-  width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;
-  font-size:15px;background:var(--ivory);transition:.2s;color:var(--ink);
-}
-input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);background:#fff;box-shadow:0 0 0 3px rgba(15,61,62,.12);}
-.role-pick{display:flex;gap:10px;}
-.role-opt{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:12px 10px;text-align:center;font-size:13.5px;font-weight:700;color:var(--ink-soft);transition:.2s;background:var(--ivory);}
-.role-opt.selected{border-color:var(--gold);background:#fbf1dd;color:#8a6412;}
-.btn{
-  width:100%;padding:14px;border-radius:10px;font-weight:800;font-size:15.5px;
-  background:var(--emerald);color:#fff;transition:.2s;box-shadow:0 10px 22px rgba(15,61,62,.22);
-}
-.btn:hover{background:var(--emerald-2);transform:translateY(-1px);}
-.btn.gold{background:linear-gradient(135deg,var(--gold),#b7841f);box-shadow:0 10px 22px rgba(201,150,44,.3);}
-.btn.plum{background:var(--plum);}
-.btn.outline{background:transparent;color:var(--emerald);box-shadow:none;border:1.5px solid var(--emerald);}
-.btn.small{padding:9px 14px;font-size:13.5px;width:auto;}
-.form-note{font-size:12px;color:#9a9382;margin-top:14px;line-height:1.7;text-align:center;}
-
 /* ============================================================
    APP SHELL
    ============================================================ */
-#appScreen{min-height:100vh;}
 .topbar{
   position:sticky;top:0;z-index:40;
   background:var(--emerald);color:#fff;
@@ -177,6 +114,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .hero-stats{display:flex;gap:26px;margin-top:20px;flex-wrap:wrap;}
 .hero-stat b{display:block;font-size:22px;color:var(--gold-soft);font-family:'Markazi Text',serif;}
 .hero-stat span{font-size:12.5px;color:#a9c7bd;}
+.hero-guest-cta{margin-top:20px;display:inline-flex;}
 
 /* CATEGORY CHIPS */
 .chip-row{display:flex;gap:9px;overflow-x:auto;padding-bottom:8px;margin-bottom:22px;}
@@ -197,6 +135,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
   height:150px;background:linear-gradient(135deg,#eee3c6,#f6efdd);
   display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;
 }
+[data-theme="dark"] .pcard .thumb{background:linear-gradient(135deg,#1c3a35,#173330);}
 .stock-tag{
   position:absolute;top:10px;right:10px;background:var(--paper);color:var(--danger);
   font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.15);
@@ -205,9 +144,10 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .pcard .info{padding:14px 14px 16px;display:flex;flex-direction:column;gap:6px;flex:1;}
 .pcard .cat{font-size:11px;color:var(--gold);font-weight:800;letter-spacing:.3px;}
 .pcard h3{font-size:16px;font-weight:700;font-family:'Cairo',sans-serif;color:var(--ink);}
-.pcard .desc{font-size:12.5px;color:#8a8578;line-height:1.6;flex:1;}
+.pcard .desc{font-size:12.5px;color:var(--ink-soft);line-height:1.6;flex:1;}
 .pcard .price-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;}
 .price{font-size:19px;font-weight:800;color:var(--emerald);font-family:'Markazi Text',serif;}
+[data-theme="dark"] .price{color:var(--gold-soft);}
 .add-btn{
   background:var(--emerald);color:#fff;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:800;transition:.2s;
 }
@@ -216,9 +156,14 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .admin-actions{display:flex;gap:6px;margin-top:8px;}
 .admin-actions button{flex:1;padding:7px;border-radius:7px;font-size:12px;font-weight:700;}
 .edit-mini{background:#eef4f1;color:var(--emerald);}
+[data-theme="dark"] .edit-mini{background:#173832;color:#8fd9c9;}
 .del-mini{background:#fbeaea;color:var(--danger);}
+[data-theme="dark"] .del-mini{background:#3a1c1c;color:#f0938a;}
+.qty-mini{display:flex;align-items:center;gap:6px;margin-top:8px;background:var(--ivory);border-radius:8px;padding:6px 8px;justify-content:center;}
+.qty-mini button{width:24px;height:24px;border-radius:6px;background:var(--paper);border:1px solid var(--line);font-weight:800;color:var(--emerald);}
+.qty-mini span{font-size:12.5px;font-weight:800;min-width:26px;text-align:center;}
 
-.empty-state{text-align:center;padding:60px 20px;color:#9a9382;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink-soft);}
 .empty-state .em{font-size:44px;margin-bottom:12px;}
 
 /* CART DRAWER */
@@ -235,10 +180,11 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .close-x{width:34px;height:34px;border-radius:9px;background:var(--ivory);font-size:16px;color:var(--ink-soft);}
 .cart-items{flex:1;overflow-y:auto;padding:14px 16px;}
 .cart-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
-.cart-thumb{width:56px;height:56px;border-radius:10px;background:var(--ivory);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.cart-thumb{width:56px;height:56px;border-radius:10px;background:var(--ivory);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden;}
+.cart-thumb img{width:100%;height:100%;object-fit:cover;}
 .cart-info{flex:1;}
 .cart-info h4{font-size:14px;font-weight:700;margin-bottom:3px;}
-.cart-info .unit{font-size:12px;color:#9a9382;}
+.cart-info .unit{font-size:12px;color:var(--ink-soft);}
 .qty-ctrl{display:flex;align-items:center;gap:8px;margin-top:6px;}
 .qty-ctrl button{width:24px;height:24px;border-radius:6px;background:var(--ivory);font-weight:800;color:var(--emerald);}
 .qty-ctrl span{font-size:13px;font-weight:700;min-width:16px;text-align:center;}
@@ -252,7 +198,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .order-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);}
 .order-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
 .order-top h4{font-size:14.5px;font-weight:800;}
-.order-top .date{font-size:12px;color:#9a9382;}
+.order-top .date{font-size:12px;color:var(--ink-soft);}
 .status-pill{font-size:11.5px;font-weight:800;padding:5px 12px;border-radius:999px;}
 .status-pending{background:#fdf0d8;color:#8a6412;}
 .status-shipped{background:#e2effb;color:#1f5f8f;}
@@ -260,29 +206,64 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .status-cancelled{background:#fbeaea;color:var(--danger);}
 .order-items{font-size:13px;color:var(--ink-soft);line-height:1.9;border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;}
 .order-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
-.status-select{padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);font-size:12.5px;font-weight:700;background:var(--ivory);}
+.status-select{padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);font-size:12.5px;font-weight:700;background:var(--ivory);color:var(--ink);}
 
 /* ADMIN PANEL */
+.dash-tabs{display:flex;gap:6px;background:var(--ivory);border-radius:12px;padding:5px;margin-bottom:22px;max-width:100%;overflow-x:auto;}
+.dash-tabs button{flex-shrink:0;padding:10px 18px;border-radius:9px;background:transparent;color:var(--ink-soft);font-weight:700;font-size:13.5px;transition:.2s;white-space:nowrap;}
+.dash-tabs button.active{background:var(--emerald);color:#fff;}
 .panel-grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start;}
 .panel-card{background:var(--paper);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--line);}
 .panel-card h3{font-size:19px;margin-bottom:16px;}
 .stat-mini-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
 .stat-mini{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
 .stat-mini b{font-size:24px;color:var(--emerald);font-family:'Markazi Text',serif;display:block;}
-.stat-mini span{font-size:12px;color:#9a9382;}
+[data-theme="dark"] .stat-mini b{color:var(--gold-soft);}
+.stat-mini span{font-size:12px;color:var(--ink-soft);}
 .img-emoji-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
 .emoji-opt{width:40px;height:40px;border-radius:9px;background:var(--ivory);border:1.5px solid var(--line);font-size:19px;display:flex;align-items:center;justify-content:center;transition:.15s;}
 .emoji-opt.selected{border-color:var(--gold);background:#fbf1dd;}
+[data-theme="dark"] .emoji-opt.selected{background:#3a2c10;}
+
+/* USERS PANEL */
+.user-section-title{font-size:16px;font-weight:800;margin:22px 0 10px;color:var(--ink);}
+.user-section-title:first-child{margin-top:0;}
+.user-row{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;box-shadow:var(--shadow);}
+.user-main{display:flex;flex-direction:column;gap:4px;min-width:140px;}
+.user-main b{font-size:14.5px;}
+.user-main span{font-size:11.5px;color:var(--ink-soft);}
+.user-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.role-badge{font-size:11px;font-weight:800;padding:4px 12px;border-radius:999px;white-space:nowrap;}
+.role-customer{background:#eef4f1;color:var(--ink-soft);}
+.role-assistant{background:#e2effb;color:#1f5f8f;}
+.role-manager{background:#fdf0d8;color:#8a6412;}
+.role-super_admin{background:#f6e6ee;color:var(--plum);}
+[data-theme="dark"] .role-customer{background:#173832;color:#a9c2ba;}
+[data-theme="dark"] .role-assistant{background:#12324a;color:#8fc2f0;}
+[data-theme="dark"] .role-manager{background:#3a2c10;color:#f0cd85;}
+[data-theme="dark"] .role-super_admin{background:#3a1c2c;color:#f0a9cc;}
+.analytics-check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);font-weight:700;}
+
+/* ANALYTICS */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-top:20px;}
+.chart-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.chart-card h4{font-size:15px;margin-bottom:12px;color:var(--ink);}
+.chart-card canvas{max-height:260px;}
+.activity-feed{max-height:340px;overflow-y:auto;}
+.activity-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12.5px;}
+.activity-row .a-type{font-weight:800;color:var(--emerald);}
+[data-theme="dark"] .activity-row .a-type{color:var(--gold-soft);}
+.activity-row .a-time{color:var(--ink-soft);white-space:nowrap;font-size:11px;}
 
 /* TOAST */
 #toastHost{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;}
 .toast{
-  background:var(--ink);color:#fff;padding:12px 20px;border-radius:11px;font-size:13.5px;font-weight:700;
+  background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:11px;font-size:13.5px;font-weight:700;
   box-shadow:0 10px 26px rgba(0,0,0,.3);animation:toastIn .25s ease, toastOut .25s ease 2.3s forwards;
   display:flex;align-items:center;gap:8px;
 }
-.toast.err{background:var(--danger);}
-.toast.ok{background:var(--ok);}
+.toast.err{background:var(--danger);color:#fff;}
+.toast.ok{background:var(--ok);color:#fff;}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(-8px)}}
 
@@ -293,13 +274,40 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .modal h3{font-size:21px;margin-bottom:16px;}
 .modal-close-row{display:flex;justify-content:flex-end;margin-bottom:6px;}
 
+/* AUTH MODAL */
+.tabs{display:flex;gap:6px;background:var(--ivory);border-radius:12px;padding:5px;margin-bottom:22px;}
+.tab-btn{flex:1;padding:11px;border-radius:9px;background:transparent;color:var(--ink-soft);font-weight:700;font-size:14.5px;transition:.2s;}
+.tab-btn.active{background:var(--emerald);color:#fff;box-shadow:0 6px 14px rgba(15,61,62,.25);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+input.auth-input,select.auth-input,textarea.auth-input{
+  width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;
+  font-size:15px;background:var(--ivory);transition:.2s;color:var(--ink);
+}
+input.auth-input:focus,select.auth-input:focus,textarea.auth-input:focus{border-color:var(--emerald);background:var(--paper);box-shadow:0 0 0 3px rgba(15,61,62,.12);}
+.btn{
+  width:100%;padding:14px;border-radius:10px;font-weight:800;font-size:15.5px;
+  background:var(--emerald);color:#fff;transition:.2s;box-shadow:0 10px 22px rgba(15,61,62,.22);
+}
+.btn:hover{background:var(--emerald-2);transform:translateY(-1px);}
+.btn.gold{background:linear-gradient(135deg,var(--gold),#b7841f);box-shadow:0 10px 22px rgba(201,150,44,.3);color:#3a2a05;}
+.btn.plum{background:var(--plum);}
+.btn.outline{background:transparent;color:var(--emerald);box-shadow:none;border:1.5px solid var(--emerald);}
+.btn.small{padding:9px 14px;font-size:13.5px;width:auto;}
+.form-note{font-size:12px;color:var(--ink-soft);margin-top:14px;line-height:1.7;text-align:center;}
+.brand-mark{
+  width:52px;height:52px;border-radius:50% 50% 6px 6px;
+  background:linear-gradient(140deg,var(--gold),var(--gold-soft));
+  display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;
+}
+
 /* BOTTOM NAV — للجوال */
 .bottom-nav{
   position:fixed;bottom:0;right:0;left:0;height:64px;background:var(--paper);
   border-top:1px solid var(--line);display:none;justify-content:space-around;align-items:center;
   z-index:50;box-shadow:0 -6px 20px rgba(0,0,0,.08);
 }
-.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:#9a9382;font-size:10.5px;font-weight:700;position:relative;padding:6px 10px;}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink-soft);font-size:10.5px;font-weight:700;position:relative;padding:6px 10px;}
 .bn-item .ic{font-size:19px;}
 .bn-item.active{color:var(--emerald);}
 .bn-badge{position:absolute;top:0;left:2px;background:var(--gold);color:#3a2a05;font-size:9.5px;font-weight:800;min-width:16px;height:16px;border-radius:999px;display:flex;align-items:center;justify-content:center;}
@@ -307,15 +315,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .thumb img{width:100%;height:100%;object-fit:cover;}
 .sub-tag{font-size:10px;color:var(--ink-soft);background:var(--ivory);padding:2px 9px;border-radius:999px;display:inline-block;font-weight:700;}
 .rating-row{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--gold);font-weight:800;}
-.rating-row .cnt{color:#9a9382;font-weight:600;}
-
-/* بوابة رمز الوصول للإدمن */
-.gate-wrap{max-width:400px;margin:60px auto;text-align:center;background:var(--paper);padding:42px 30px;border-radius:20px;box-shadow:var(--shadow-lg);border:1px solid var(--line);}
-.gate-wrap .lock-ic{font-size:46px;margin-bottom:14px;}
-.gate-wrap h3{font-size:22px;margin-bottom:8px;}
-.gate-wrap p{color:#9a9382;font-size:13.5px;margin-bottom:20px;line-height:1.7;}
-.gate-wrap input{text-align:center;letter-spacing:8px;font-weight:800;font-size:22px;-webkit-text-security:disc;text-security:disc;}
-.gate-err{color:var(--danger);font-size:12.5px;font-weight:700;margin-top:10px;min-height:16px;}
+.rating-row .cnt{color:var(--ink-soft);font-weight:600;}
 
 /* نافذة تفاصيل المنتج + التعليقات */
 .detail-modal{max-width:520px;}
@@ -329,13 +329,11 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 .review-item .rv-stars{color:var(--gold);font-size:12px;}
 .review-item p{color:var(--ink-soft);line-height:1.6;}
 .upload-row{display:flex;gap:10px;align-items:center;}
-.upload-row input[type=file]{flex:1;font-size:12px;}
+.upload-row input[type=file]{flex:1;font-size:12px;color:var(--ink);}
 .img-preview{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--ivory);flex-shrink:0;border:1px solid var(--line);}
-.subcat-hint{font-size:11.5px;color:#9a9382;margin-top:4px;}
+.subcat-hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
 
 @media (max-width:860px){
-  .auth-wrap{grid-template-columns:1fr;}
-  .auth-side{display:none;}
   .nav-desktop{display:none;}
   .bottom-nav{display:flex;}
   body{padding-bottom:80px;}
@@ -354,52 +352,9 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
 <body>
 
 <!-- ============================================================
-     شاشة الدخول / التسجيل
+     التطبيق (يفتح مباشرة بدون تسجيل دخول)
      ============================================================ -->
-<div id="authScreen">
-  <div class="auth-wrap">
-    <div class="auth-side">
-      <div>
-        <div class="brand-mark">🛍️</div>
-        <h1>سوق الحيّ</h1>
-        <p>متجرك الصغير المتكامل — أنشئ حسابك، تصفح المنتجات، أضف للسلة، وأتمم طلبك، وكل ذلك محفوظ مباشرة على سحابة Firebase.</p>
-      </div>
-      <div class="side-note">إن كنت صاحب متجر، اختر "صاحب المتجر" عند التسجيل لتتمكن من إضافة المنتجات وإدارة الطلبات.</div>
-    </div>
-    <div class="auth-form-area">
-      <div class="tabs">
-        <button class="tab-btn active" id="tabLogin">تسجيل الدخول</button>
-        <button class="tab-btn" id="tabRegister">حساب جديد</button>
-      </div>
-
-      <form id="loginForm">
-        <div class="field"><label>اسم المستخدم</label><input class="auth-input" id="logUser" required placeholder="مثال: sara"></div>
-        <div class="field"><label>كلمة المرور</label><input class="auth-input" type="password" id="logPass" required placeholder="••••••••"></div>
-        <button class="btn" type="submit">دخول المتجر</button>
-        <p class="form-note">ليس لديك حساب؟ اضغط "حساب جديد" أعلاه.</p>
-      </form>
-
-      <form id="registerForm" class="hidden">
-        <div class="field"><label>اسم المستخدم</label><input class="auth-input" id="regUser" required placeholder="اختر اسم مستخدم فريد"></div>
-        <div class="field"><label>كلمة المرور</label><input class="auth-input" type="password" id="regPass" required placeholder="6 أحرف على الأقل"></div>
-        <div class="field">
-          <label>نوع الحساب</label>
-          <div class="role-pick">
-            <div class="role-opt selected" data-role="customer">🧑‍🤝‍🧑 عميل</div>
-            <div class="role-opt" data-role="owner">🏪 صاحب متجر</div>
-          </div>
-        </div>
-        <button class="btn gold" type="submit">إنشاء الحساب</button>
-        <p class="form-note">سيتم حفظ بياناتك في قاعدة بيانات Firestore.</p>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     تطبيق المتجر
-     ============================================================ -->
-<div id="appScreen" class="hidden">
+<div id="appScreen">
 
   <div class="topbar">
     <div class="brand">
@@ -415,12 +370,13 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
     <div class="nav-desktop">
       <button class="nav-btn active" data-view="store">المتجر</button>
       <button class="nav-btn" data-view="orders">طلباتي</button>
-      <button class="nav-btn" id="navAdmin" data-view="admin">🔒 اضافة المنتجات</button>
+      <button class="nav-btn hidden" id="navAdmin" data-view="admin">لوحة التحكم</button>
     </div>
 
     <div class="topbar-actions">
+      <button class="icon-btn" id="themeToggle" title="تبديل الوضع الليلي/النهاري">🌙</button>
       <button class="icon-btn" id="openCartBtn">🛒<span class="badge-count hidden" id="cartCount">0</span></button>
-      <button class="icon-btn" id="logoutBtn" title="خروج">🚪</button>
+      <button class="icon-btn" id="authToggleBtn" title="الحساب">👤</button>
     </div>
   </div>
 
@@ -429,12 +385,15 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
     <!-- ============ عرض: المتجر ============ -->
     <div id="viewStore">
       <div class="hero">
-        <h1>أهلاً بك، <span id="welcomeName">صديقنا</span> 👋</h1>
-        <p>تصفّح تشكيلة اليوم من المنتجات المختارة بعناية، وأضف ما يعجبك إلى سلتك بضغطة واحدة.</p>
+        <h1 id="heroTitle">أهلاً بك، زائرنا الكريم 👋</h1>
+        <p id="heroSub">تصفّح تشكيلة اليوم من المنتجات المختارة بعناية. سجّل الدخول لتتمكن من إضافة المنتجات إلى سلتك وإتمام الطلب.</p>
         <div class="hero-stats">
           <div class="hero-stat"><b id="statProductsCount">0</b><span>منتج متوفر</span></div>
           <div class="hero-stat"><b id="statCategoriesCount">0</b><span>تصنيف</span></div>
           <div class="hero-stat"><b id="statMyOrdersCount">0</b><span>طلباتك</span></div>
+        </div>
+        <div class="hero-guest-cta hidden" id="heroGuestCta">
+          <button class="btn gold small" id="heroLoginBtn">تسجيل الدخول للطلب</button>
         </div>
       </div>
 
@@ -456,88 +415,99 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
       </div>
     </div>
 
-    <!-- ============ عرض: لوحة التحكم (محمي برمز دخول) ============ -->
+    <!-- ============ عرض: لوحة التحكم ============ -->
     <div id="viewAdmin" class="hidden">
+      <h2 class="display" style="font-size:28px;margin-bottom:6px;">لوحة التحكم</h2>
+      <p style="color:var(--ink-soft);font-size:13.5px;margin-bottom:18px;" id="dashRoleNote"></p>
 
-      <div class="gate-wrap" id="accessGate">
-        <div class="lock-ic">🔒</div>
-        <h3>لوحة التحكم</h3>
-        <p>هذه اللوحة خاصة بصاحب المتجر لإدارة المنتجات والطلبات. أدخل رمز الدخول للمتابعة.</p>
-        <div class="field"><input class="auth-input" id="accessCodeInput" maxlength="12" placeholder="••••" autocomplete="off"></div>
-        <button class="btn gold" id="accessGateBtn">دخول</button>
-        <div class="gate-err" id="accessGateErr"></div>
+      <div class="dash-tabs" id="dashTabsHost"></div>
+
+      <!-- تبويب: الطلبات -->
+      <div id="dashOrders" class="hidden">
+        <div class="stat-mini-row">
+          <div class="stat-mini"><b id="admStatProducts">0</b><span>إجمالي المنتجات</span></div>
+          <div class="stat-mini"><b id="admStatOrders">0</b><span>إجمالي الطلبات</span></div>
+          <div class="stat-mini"><b id="admStatRevenue">0</b><span>إجمالي المبيعات (د.ع)</span></div>
+          <div class="stat-mini"><b id="admStatUsers">0</b><span>عدد الأعضاء</span></div>
+        </div>
+        <h3 style="font-size:18px;margin-bottom:12px;">كل الطلبات الواردة</h3>
+        <div id="adminOrdersList"></div>
+        <div class="empty-state hidden" id="adminOrdersEmpty"><div class="em">📭</div><div>لا توجد طلبات بعد.</div></div>
       </div>
 
-      <div id="addProductArea" class="hidden">
-        <h2 class="display" style="font-size:28px;margin-bottom:16px;">لوحة تحكم المتجر</h2>
+      <!-- تبويب: المنتجات -->
+      <div id="dashProducts" class="hidden">
+        <div class="panel-grid">
+          <div class="panel-card">
+            <h3 id="productFormTitle">إضافة منتج جديد</h3>
+            <form id="productForm">
+              <input type="hidden" id="editProductId">
+              <div class="field"><label>اسم المنتج</label><input class="auth-input" id="pName" required placeholder="مثال: سماعة لاسلكية"></div>
 
-        <div class="tabs" style="max-width:420px;margin-bottom:22px;">
-          <button class="tab-btn active" id="dashTabOverview">الإحصائيات والطلبات</button>
-          <button class="tab-btn" id="dashTabProducts">القوائم وإضافة المنتجات</button>
-        </div>
+              <div class="field">
+                <label>القائمة الرئيسية</label>
+                <select class="auth-input" id="pCategory"></select>
+              </div>
+              <div class="field">
+                <label>القائمة الفرعية</label>
+                <select class="auth-input" id="pSubcategory"></select>
+                <div class="subcat-hint">تتغيّر القائمة الفرعية تلقائياً حسب القائمة الرئيسية المختارة</div>
+              </div>
 
-        <!-- تبويب: الإحصائيات والطلبات -->
-        <div id="dashOverview">
-          <div class="stat-mini-row">
-            <div class="stat-mini"><b id="admStatProducts">0</b><span>إجمالي المنتجات</span></div>
-            <div class="stat-mini"><b id="admStatOrders">0</b><span>إجمالي الطلبات</span></div>
-            <div class="stat-mini"><b id="admStatRevenue">0</b><span>إجمالي المبيعات (د.ع)</span></div>
-            <div class="stat-mini"><b id="admStatUsers">0</b><span>عدد الأعضاء</span></div>
+              <div class="field"><label>النوع / الموديل (اختياري)</label><input class="auth-input" id="pType" placeholder="مثال: قطن 100% — مقاس L"></div>
+
+              <div class="field"><label>السعر (د.ع)</label><input class="auth-input" id="pPrice" type="number" min="0" step="250" required></div>
+              <div class="field"><label>الكمية المتوفرة</label><input class="auth-input" id="pStock" type="number" min="0" required></div>
+              <div class="field"><label>وصف المنتج</label><textarea class="auth-input" id="pDesc" rows="3" placeholder="اكتب وصفاً واضحاً يساعد المشتري على اتخاذ القرار"></textarea></div>
+
+              <div class="field">
+                <label>صورة المنتج</label>
+                <div class="upload-row">
+                  <img class="img-preview" id="pImgPreview" src="" style="display:none;">
+                  <input type="file" id="pImageFile" accept="image/*">
+                </div>
+                <input class="auth-input" id="pImageUrl" placeholder="أو الصق رابط صورة مباشر (اختياري)" style="margin-top:8px;">
+              </div>
+
+              <div class="field">
+                <label>أيقونة احتياطية (تظهر إن لم تُرفع صورة)</label>
+                <div class="img-emoji-picker" id="emojiPicker"></div>
+                <input type="hidden" id="pEmoji" value="🛍️">
+              </div>
+
+              <button class="btn" type="submit" id="productFormBtn">حفظ المنتج</button>
+              <button class="btn outline hidden" type="button" id="cancelEditBtn" style="margin-top:8px;">إلغاء التعديل</button>
+            </form>
           </div>
-          <h3 style="font-size:18px;margin-bottom:12px;">كل الطلبات الواردة</h3>
-          <div id="adminOrdersList"></div>
-          <div class="empty-state hidden" id="adminOrdersEmpty"><div class="em">📭</div><div>لا توجد طلبات بعد.</div></div>
+
+          <div>
+            <h3 style="font-size:18px;margin-bottom:12px;">كل المنتجات الحالية</h3>
+            <div class="grid" id="myProductsGrid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));"></div>
+          </div>
         </div>
+      </div>
 
-        <!-- تبويب: القوائم وإضافة المنتجات -->
-        <div id="dashProducts" class="hidden">
-          <div class="panel-grid">
-            <div class="panel-card">
-              <h3 id="productFormTitle">إضافة منتج جديد</h3>
-              <form id="productForm">
-                <input type="hidden" id="editProductId">
-                <div class="field"><label>اسم المنتج</label><input class="auth-input" id="pName" required placeholder="مثال: سماعة لاسلكية"></div>
+      <!-- تبويب: الأعضاء (المدير العام فقط) -->
+      <div id="dashUsers" class="hidden">
+        <div class="user-section-title">الفريق الإداري (المديرون ومساعدو المدير)</div>
+        <div id="staffListHost"></div>
+        <div class="user-section-title">المستخدمون العاديون</div>
+        <div id="customerListHost"></div>
+      </div>
 
-                <div class="field">
-                  <label>القائمة الرئيسية</label>
-                  <select class="auth-input" id="pCategory"></select>
-                </div>
-                <div class="field">
-                  <label>القائمة الفرعية</label>
-                  <select class="auth-input" id="pSubcategory"></select>
-                  <div class="subcat-hint">تتغيّر القائمة الفرعية تلقائياً حسب القائمة الرئيسية المختارة</div>
-                </div>
-
-                <div class="field"><label>النوع / الموديل (اختياري)</label><input class="auth-input" id="pType" placeholder="مثال: قطن 100% — مقاس L"></div>
-
-                <div class="field"><label>السعر (د.ع)</label><input class="auth-input" id="pPrice" type="number" min="0" step="250" required></div>
-                <div class="field"><label>الكمية المتوفرة</label><input class="auth-input" id="pStock" type="number" min="0" required></div>
-                <div class="field"><label>وصف المنتج</label><textarea class="auth-input" id="pDesc" rows="3" placeholder="اكتب وصفاً واضحاً يساعد المشتري على اتخاذ القرار"></textarea></div>
-
-                <div class="field">
-                  <label>صورة المنتج</label>
-                  <div class="upload-row">
-                    <img class="img-preview" id="pImgPreview" src="" style="display:none;">
-                    <input type="file" id="pImageFile" accept="image/*">
-                  </div>
-                  <input class="auth-input" id="pImageUrl" placeholder="أو الصق رابط صورة مباشر (اختياري)" style="margin-top:8px;">
-                </div>
-
-                <div class="field">
-                  <label>أيقونة احتياطية (تظهر إن لم تُرفع صورة)</label>
-                  <div class="img-emoji-picker" id="emojiPicker"></div>
-                  <input type="hidden" id="pEmoji" value="🛍️">
-                </div>
-
-                <button class="btn" type="submit" id="productFormBtn">حفظ المنتج</button>
-                <button class="btn outline hidden" type="button" id="cancelEditBtn" style="margin-top:8px;">إلغاء التعديل</button>
-              </form>
-            </div>
-
-            <div>
-              <h3 style="font-size:18px;margin-bottom:12px;">منتجاتك الحالية</h3>
-              <div class="grid" id="myProductsGrid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));"></div>
-            </div>
+      <!-- تبويب: التحليلات -->
+      <div id="dashAnalytics" class="hidden">
+        <div class="stat-mini-row" id="analyticsStatsRow"></div>
+        <div class="chart-grid">
+          <div class="chart-card"><h4>الطلبات خلال آخر 14 يوماً</h4><canvas id="chartOrdersTime"></canvas></div>
+          <div class="chart-card"><h4>الإيرادات خلال آخر 14 يوماً (د.ع)</h4><canvas id="chartRevenueTime"></canvas></div>
+          <div class="chart-card"><h4>توزيع حالات الطلبات</h4><canvas id="chartStatusDist"></canvas></div>
+          <div class="chart-card"><h4>الأكثر مبيعاً</h4><canvas id="chartTopProducts"></canvas></div>
+          <div class="chart-card"><h4>توزيع الأعضاء حسب الصلاحية</h4><canvas id="chartUserRoles"></canvas></div>
+          <div class="chart-card"><h4>تسجيلات الدخول خلال آخر 14 يوماً</h4><canvas id="chartLogins"></canvas></div>
+          <div class="chart-card" style="grid-column:1/-1;">
+            <h4>سجل النشاط الأخير</h4>
+            <div class="activity-feed" id="activityFeed"></div>
           </div>
         </div>
       </div>
@@ -550,7 +520,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
     <div class="bn-item active" data-view="store"><span class="ic">🏬</span>المتجر</div>
     <div class="bn-item" id="bnCart"><span class="ic">🛒</span>السلة<span class="bn-badge hidden" id="bnCartCount">0</span></div>
     <div class="bn-item" data-view="orders"><span class="ic">📦</span>طلباتي</div>
-    <div class="bn-item" id="bnAdmin" data-view="admin"><span class="ic">🔒</span>الإدارة</div>
+    <div class="bn-item hidden" id="bnAdmin" data-view="admin"><span class="ic">🛠️</span>الإدارة</div>
   </div>
 </div>
 
@@ -563,7 +533,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
   </div>
   <div class="cart-items" id="cartItemsHost"></div>
   <div class="empty-state hidden" id="cartEmpty" style="margin:auto;">
-    <div class="em">🛒</div><div>سلتك فارغة حالياً</div>
+    <div class="em">🛒</div><div id="cartEmptyText">سلتك فارغة حالياً</div>
   </div>
   <div class="drawer-foot" id="cartFoot">
     <div class="total-row"><span>الإجمالي</span><b id="cartTotal">0 د.ع</b></div>
@@ -571,11 +541,11 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
   </div>
 </div>
 
-<!-- تأكيد حذف منتج -->
+<!-- تأكيد الحذف (منتج أو مستخدم) -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
     <h3>تأكيد الحذف</h3>
-    <p style="color:#6b7280;font-size:14px;margin-bottom:20px;">هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.</p>
+    <p style="color:var(--ink-soft);font-size:14px;margin-bottom:20px;" id="confirmModalText">هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>
     <div style="display:flex;gap:10px;">
       <button class="btn plum" id="confirmDeleteBtn">حذف نهائي</button>
       <button class="btn outline" id="cancelDeleteBtn">تراجع</button>
@@ -610,6 +580,39 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
   </div>
 </div>
 
+<!-- نافذة تسجيل الدخول / إنشاء حساب -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-close-row"><button class="close-x" id="closeAuthBtn">✕</button></div>
+    <div class="brand-mark">🛍️</div>
+    <h3 style="margin-bottom:4px;">سوق الحيّ</h3>
+    <p style="color:var(--ink-soft);font-size:13px;margin-bottom:18px;">سجّل الدخول أو أنشئ حساباً جديداً لتتمكن من الطلب.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tabLogin">تسجيل الدخول</button>
+      <button class="tab-btn" id="tabRegister">حساب جديد</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="field"><label>اسم المستخدم</label><input class="auth-input" id="logUser" required placeholder="مثال: sara"></div>
+      <div class="field"><label>كلمة المرور</label><input class="auth-input" type="password" id="logPass" required placeholder="••••••••"></div>
+      <button class="btn" type="submit">دخول</button>
+      <p class="form-note">ليس لديك حساب؟ اضغط "حساب جديد" أعلاه.</p>
+    </form>
+
+    <form id="registerForm" class="hidden">
+      <div class="field"><label>اسم المستخدم</label><input class="auth-input" id="regUser" required placeholder="اختر اسم مستخدم فريد"></div>
+      <div class="field"><label>كلمة المرور</label><input class="auth-input" type="password" id="regPass" required placeholder="4 أحرف على الأقل"></div>
+      <div class="field">
+        <label>رمز الصلاحية (اختياري)</label>
+        <input class="auth-input" id="regCode" placeholder="اتركه فارغاً إن كنت عميلاً عادياً">
+      </div>
+      <button class="btn gold" type="submit">إنشاء الحساب</button>
+      <p class="form-note">صلاحيات المدير والمساعد تُمنح لاحقاً من قِبل المدير العام.</p>
+    </form>
+  </div>
+</div>
+
 <div id="toastHost"></div>
 
 <script type="module">
@@ -620,12 +623,17 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 /* --------------------------------------------------------------
-   رمز الدخول لصفحة إضافة المنتجات (خاص بصاحب المتجر)
+   رمز المدير العام (يُمنح عند التسجيل فقط)
    -------------------------------------------------------------- */
-const ACCESS_CODE = "MASK";
+const SUPER_ADMIN_CODE = "MASK";
+
+/* الصلاحيات: customer < assistant < manager < super_admin */
+const ROLE_LABELS = {
+  customer:'عميل', assistant:'مساعد مدير', manager:'مدير', super_admin:'المدير العام'
+};
 
 /* --------------------------------------------------------------
-   شجرة الأقسام: قوائم رئيسية وفرعية تغطي كل ما يُباع بمتجر عام
+   شجرة الأقسام
    -------------------------------------------------------------- */
 const CATEGORY_TREE = {
   "إلكترونيات": ["هواتف ذكية","حواسيب ولابتوبات","أجهزة تلفاز وصوت","اكسسوارات إلكترونية","ألعاب فيديو وأجهزة","كاميرات وتصوير"],
@@ -645,7 +653,7 @@ const CATEGORY_TREE = {
 };
 
 /* --------------------------------------------------------------
-   إعداد Firebase (نفس مشروعك الحالي)
+   إعداد Firebase
    -------------------------------------------------------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyC08D8BIPgBwlxgUQt4cu7vPld_W47HeKo",
@@ -659,24 +667,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const usersCol    = collection(db, "users");
-const productsCol = collection(db, "products");
-const ordersCol   = collection(db, "orders");
-const cartsCol    = collection(db, "carts");
+const usersCol      = collection(db, "users");
+const productsCol   = collection(db, "products");
+const ordersCol     = collection(db, "orders");
+const cartsCol      = collection(db, "carts");
+const activityCol   = collection(db, "activityLog");
 
 /* --------------------------------------------------------------
    حالة عامة
    -------------------------------------------------------------- */
-let currentUser = null;      // {username, role}
+let currentUser = null;      // {id, username, role, canViewAnalytics} أو null لزائر
 let allProducts = [];
-let cartItems   = [];        // [{productId,name,price,emoji,qty}]
+let allUsers = [];
+let cartItems   = [];
 let activeCategory = "الكل";
 let searchTerm = "";
 let editingProductId = null;
-let pendingDeleteId = null;
-let isGateUnlocked = false;
+let pendingDelete = null;    // {type:'product'|'user', id}
 let detailProductId = null;
 let selectedStars = 0;
+let currentDashTab = null;
+let chartInstances = {};
 const EMOJI_CHOICES = ["🛍️","👕","👟","📱","💻","🍯","🥖","🍫","🕯️","🧴","🪴","🏺","🎒","⌚","📚","🧸","🍵","🧁"];
 
 /* --------------------------------------------------------------
@@ -692,10 +703,51 @@ function toast(msg, type=""){
 }
 function money(n){ return Math.round(Number(n)).toLocaleString('ar-IQ') + ' د.ع'; }
 function el(sel){ return document.querySelector(sel); }
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str||''; return d.innerHTML; }
+
+function isStaff(u){ return !!u && ['assistant','manager','super_admin'].includes(u.role); }
+function canAddProduct(u){ return !!u && ['assistant','manager','super_admin'].includes(u.role); }
+function canEditProduct(u){ return !!u && ['manager','super_admin'].includes(u.role); }
+function canDeleteProduct(u){ return !!u && ['manager','super_admin'].includes(u.role); }
+function canManageUsers(u){ return !!u && u.role==='super_admin'; }
+function userCanViewAnalytics(u){ return !!u && (u.role==='super_admin' || u.canViewAnalytics===true); }
+
+async function logActivity(type, detail){
+  try{
+    await addDoc(activityCol, {
+      type, detail,
+      username: currentUser ? currentUser.username : 'زائر',
+      createdAt: new Date().toLocaleString('ar-EG'),
+      createdAtISO: new Date().toISOString()
+    });
+  }catch(e){ /* صامت */ }
+}
 
 /* --------------------------------------------------------------
-   تبديل تبويبات الدخول/التسجيل
+   الوضع الليلي / النهاري
    -------------------------------------------------------------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  el('#themeToggle').textContent = t==='dark' ? '☀️' : '🌙';
+}
+applyTheme(localStorage.getItem('theme') || 'light');
+el('#themeToggle').addEventListener('click', ()=>{
+  applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+});
+
+/* --------------------------------------------------------------
+   نافذة تسجيل الدخول
+   -------------------------------------------------------------- */
+function openAuthModal(){ el('#authModal').classList.add('open'); }
+function closeAuthModal(){ el('#authModal').classList.remove('open'); }
+el('#closeAuthBtn').addEventListener('click', closeAuthModal);
+el('#authModal').addEventListener('click', (e)=>{ if(e.target.id==='authModal') closeAuthModal(); });
+el('#authToggleBtn').addEventListener('click', ()=>{
+  if(currentUser){ logout(); } else { openAuthModal(); }
+});
+el('#heroLoginBtn').addEventListener('click', openAuthModal);
+
 el('#tabLogin').addEventListener('click', ()=>{
   el('#tabLogin').classList.add('active'); el('#tabRegister').classList.remove('active');
   el('#loginForm').classList.remove('hidden'); el('#registerForm').classList.add('hidden');
@@ -703,14 +755,6 @@ el('#tabLogin').addEventListener('click', ()=>{
 el('#tabRegister').addEventListener('click', ()=>{
   el('#tabRegister').classList.add('active'); el('#tabLogin').classList.remove('active');
   el('#registerForm').classList.remove('hidden'); el('#loginForm').classList.add('hidden');
-});
-let selectedRole = 'customer';
-document.querySelectorAll('.role-opt').forEach(opt=>{
-  opt.addEventListener('click', ()=>{
-    document.querySelectorAll('.role-opt').forEach(o=>o.classList.remove('selected'));
-    opt.classList.add('selected');
-    selectedRole = opt.dataset.role;
-  });
 });
 
 /* --------------------------------------------------------------
@@ -720,6 +764,7 @@ el('#registerForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const username = el('#regUser').value.trim();
   const password = el('#regPass').value;
+  const code = el('#regCode').value.trim();
   if(username.length < 2){ toast('اسم المستخدم قصير جداً','err'); return; }
   if(password.length < 4){ toast('كلمة المرور يجب أن تكون 4 أحرف على الأقل','err'); return; }
 
@@ -728,11 +773,15 @@ el('#registerForm').addEventListener('submit', async (e)=>{
     const snap = await getDocs(q);
     if(!snap.empty){ toast('اسم المستخدم مستخدم مسبقاً','err'); return; }
 
+    const role = (code === SUPER_ADMIN_CODE) ? 'super_admin' : 'customer';
     await addDoc(usersCol, {
-      username, password, role: selectedRole,
-      createdAt: new Date().toLocaleString('ar-EG')
+      username, password, role,
+      canViewAnalytics: role==='super_admin',
+      createdAt: new Date().toLocaleString('ar-EG'),
+      createdAtISO: new Date().toISOString()
     });
-    toast('تم إنشاء حسابك بنجاح 🎉','ok');
+    await logActivity('register', `تسجيل حساب جديد (${ROLE_LABELS[role]}): ${username}`);
+    toast(role==='super_admin' ? 'تم إنشاء حساب المدير العام بنجاح 👑' : 'تم إنشاء حسابك بنجاح 🎉','ok');
     el('#registerForm').reset();
     el('#tabLogin').click();
     el('#logUser').value = username;
@@ -752,94 +801,156 @@ el('#loginForm').addEventListener('submit', async (e)=>{
     if(snap.empty){ toast('اسم المستخدم أو كلمة المرور غير صحيحة','err'); return; }
     const userDoc = snap.docs[0];
     const data = userDoc.data();
-    localStorage.setItem('activeUser', JSON.stringify({username:data.username, role:data.role||'customer'}));
-    bootApp({username:data.username, role:data.role||'customer'});
+    const user = {
+      id: userDoc.id, username: data.username,
+      role: data.role || 'customer',
+      canViewAnalytics: !!data.canViewAnalytics
+    };
+    localStorage.setItem('activeUser', JSON.stringify(user));
+    currentUser = user;
+    closeAuthModal();
+    el('#loginForm').reset();
+    await logActivity('login', `تسجيل دخول: ${user.username}`);
+    bootLoggedInFeatures();
+    toast('مرحباً بك مجدداً، '+user.username+' 👋','ok');
   }catch(err){ toast('خطأ في الاتصال: '+err.message,'err'); }
 });
 
-el('#logoutBtn').addEventListener('click', ()=>{
+function logout(){
   localStorage.removeItem('activeUser');
   location.reload();
-});
+}
 
 /* --------------------------------------------------------------
-   إقلاع التطبيق بعد الدخول
+   إقلاع التطبيق (زائر أو عضو)
    -------------------------------------------------------------- */
-function bootApp(user){
-  currentUser = user;
-  el('#authScreen').classList.add('hidden');
-  el('#appScreen').classList.remove('hidden');
-  el('#welcomeName').textContent = user.username;
-
-  listenAdminOrders();
-  listenUserCount();
-  isGateUnlocked = sessionStorage.getItem('gateUnlocked_'+user.username) === '1';
-  if(isGateUnlocked){ el('#accessGate').classList.add('hidden'); el('#addProductArea').classList.remove('hidden'); }
-
-  listenProducts();
-  listenCart();
-  listenMyOrders();
+async function boot(){
   buildEmojiPicker();
   buildCategorySelects();
-}
+  listenProducts();
 
-/* --------------------------------------------------------------
-   بوابة رمز الدخول لصفحة إضافة المنتجات
-   -------------------------------------------------------------- */
-function tryUnlockGate(){
-  const code = el('#accessCodeInput').value.trim();
-  if(code === ACCESS_CODE){
-    isGateUnlocked = true;
-    sessionStorage.setItem('gateUnlocked_'+currentUser.username, '1');
-    el('#accessGate').classList.add('hidden');
-    el('#addProductArea').classList.remove('hidden');
-    toast('تم فتح صفحة إضافة المنتجات 🔓','ok');
+  const saved = localStorage.getItem('activeUser');
+  if(saved){
+    try{
+      const savedUser = JSON.parse(saved);
+      // إعادة التحقق من الصلاحية الحالية من قاعدة البيانات (قد تكون تغيّرت)
+      const q = query(usersCol, where('username','==', savedUser.username));
+      const snap = await getDocs(q);
+      if(!snap.empty){
+        const d = snap.docs[0];
+        const data = d.data();
+        currentUser = { id:d.id, username:data.username, role:data.role||'customer', canViewAnalytics:!!data.canViewAnalytics };
+        localStorage.setItem('activeUser', JSON.stringify(currentUser));
+        bootLoggedInFeatures();
+      }else{
+        localStorage.removeItem('activeUser');
+        updateAuthUI();
+      }
+    }catch(e){ updateAuthUI(); }
   }else{
-    el('#accessGateErr').textContent = 'رمز الدخول غير صحيح، حاول مجدداً.';
-    el('#accessCodeInput').value = '';
-    el('#accessCodeInput').focus();
+    updateAuthUI();
   }
 }
-el('#accessGateBtn').addEventListener('click', tryUnlockGate);
-el('#accessCodeInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); tryUnlockGate(); } });
 
-(function checkSession(){
-  const saved = localStorage.getItem('activeUser');
-  if(saved){ try{ bootApp(JSON.parse(saved)); }catch(e){} }
-})();
+function bootLoggedInFeatures(){
+  updateAuthUI();
+  listenCart();
+  listenMyOrders();
+  if(isStaff(currentUser)){
+    listenAdminOrders();
+    listenUserCount();
+    buildDashboardTabs();
+  }
+  if(canManageUsers(currentUser)){
+    listenAllUsersForAdmin();
+  }
+}
+
+function updateAuthUI(){
+  const guest = !currentUser;
+  el('#authToggleBtn').textContent = guest ? '👤' : '🚪';
+  el('#authToggleBtn').title = guest ? 'تسجيل الدخول' : 'تسجيل الخروج ('+currentUser.username+')';
+  el('#heroGuestCta').classList.toggle('hidden', !guest);
+  el('#heroTitle').textContent = guest ? 'أهلاً بك، زائرنا الكريم 👋' : ('أهلاً بك، '+currentUser.username+' 👋');
+  el('#heroSub').textContent = guest
+    ? 'تصفّح تشكيلة اليوم من المنتجات المختارة بعناية. سجّل الدخول لتتمكن من إضافة المنتجات إلى سلتك وإتمام الطلب.'
+    : 'تصفّح تشكيلة اليوم من المنتجات المختارة بعناية، وأضف ما يعجبك إلى سلتك بضغطة واحدة.';
+  el('#cartEmptyText').textContent = guest ? 'سجّل الدخول لإضافة منتجات إلى سلتك' : 'سلتك فارغة حالياً';
+
+  const staff = isStaff(currentUser);
+  el('#navAdmin').classList.toggle('hidden', !staff);
+  el('#bnAdmin').classList.toggle('hidden', !staff);
+  if(!staff){
+    el('#viewAdmin').classList.add('hidden');
+  }
+  if(!currentUser){
+    el('#statMyOrdersCount').textContent = '0';
+    cartItems = [];
+    renderCart();
+  }
+}
+
+boot();
 
 /* --------------------------------------------------------------
-   التنقل بين العروض (المتجر / طلباتي / لوحة التحكم)
+   التنقل بين العروض
    -------------------------------------------------------------- */
 const VIEW_IDS = {store:'viewStore', orders:'viewOrders', admin:'viewAdmin'};
 function switchView(view){
+  if(view==='orders' && !currentUser){ toast('سجّل الدخول لعرض طلباتك','err'); openAuthModal(); return; }
+  if(view==='admin' && !isStaff(currentUser)){ return; }
   Object.keys(VIEW_IDS).forEach(v=>{
     el('#'+VIEW_IDS[v]).classList.toggle('hidden', v!==view);
   });
   document.querySelectorAll('.nav-desktop .nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.view===view));
   document.querySelectorAll('.bottom-nav .bn-item[data-view]').forEach(b=> b.classList.toggle('active', b.dataset.view===view));
-  if(view === 'admin' && !isGateUnlocked){
-    el('#accessGate').classList.remove('hidden');
-    el('#addProductArea').classList.add('hidden');
-    el('#accessCodeInput').value = '';
-    el('#accessGateErr').textContent = '';
-    setTimeout(()=> el('#accessCodeInput').focus(), 100);
-  }
   window.scrollTo({top:0,behavior:'smooth'});
 }
-
-/* تبويبات داخل لوحة التحكم */
-function switchDashTab(tab){
-  el('#dashOverview').classList.toggle('hidden', tab!=='overview');
-  el('#dashProducts').classList.toggle('hidden', tab!=='products');
-  el('#dashTabOverview').classList.toggle('active', tab==='overview');
-  el('#dashTabProducts').classList.toggle('active', tab==='products');
-}
-el('#dashTabOverview').addEventListener('click', ()=> switchDashTab('overview'));
-el('#dashTabProducts').addEventListener('click', ()=> switchDashTab('products'));
 document.querySelectorAll('.nav-desktop .nav-btn, .bottom-nav .bn-item[data-view]').forEach(btn=>{
   btn.addEventListener('click', ()=> switchView(btn.dataset.view));
 });
+
+/* --------------------------------------------------------------
+   تبويبات لوحة التحكم (تُبنى حسب صلاحية المستخدم)
+   -------------------------------------------------------------- */
+function buildDashboardTabs(){
+  const tabs = [];
+  if(canDeleteProduct(currentUser) || canEditProduct(currentUser)) tabs.push({id:'orders', label:'الطلبات'});
+  if(canAddProduct(currentUser)) tabs.push({id:'products', label:'المنتجات'});
+  if(canManageUsers(currentUser)) tabs.push({id:'users', label:'الأعضاء'});
+  if(userCanViewAnalytics(currentUser)) tabs.push({id:'analytics', label:'التحليلات'});
+
+  const host = el('#dashTabsHost');
+  host.innerHTML = '';
+  tabs.forEach((t,i)=>{
+    const b = document.createElement('button');
+    b.textContent = t.label;
+    b.dataset.tab = t.id;
+    if(i===0) b.classList.add('active');
+    b.addEventListener('click', ()=> switchDashTab(t.id));
+    host.appendChild(b);
+  });
+
+  const roleNote = {
+    assistant:'يمكنك إضافة منتجات جديدة إلى المتجر فقط.',
+    manager:'يمكنك إضافة المنتجات وتعديلها وحذفها ومتابعة الطلبات.',
+    super_admin:'لديك كل الصلاحيات: المنتجات، الطلبات، الأعضاء، والتحليلات.'
+  };
+  el('#dashRoleNote').textContent = (ROLE_LABELS[currentUser.role]||'') + ' — ' + (roleNote[currentUser.role]||'');
+
+  if(tabs.length) switchDashTab(tabs[0].id);
+}
+
+function switchDashTab(tab){
+  currentDashTab = tab;
+  ['orders','products','users','analytics'].forEach(t=>{
+    const panel = el('#dash'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(panel) panel.classList.toggle('hidden', t!==tab);
+  });
+  document.querySelectorAll('#dashTabsHost button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
+  if(tab==='users') renderUsersPanel();
+  if(tab==='analytics') loadAnalytics();
+}
 
 /* --------------------------------------------------------------
    المنتجات: استماع حي + عرض
@@ -881,9 +992,7 @@ function renderProducts(){
   host.innerHTML = '';
   el('#storeEmpty').classList.toggle('hidden', list.length>0);
 
-  list.forEach(p=>{
-    host.appendChild(buildProductCard(p, false));
-  });
+  list.forEach(p=> host.appendChild(buildProductCard(p, false)));
 
   host.querySelectorAll('[data-id]').forEach(btn=>{
     btn.addEventListener('click', (e)=>{ e.stopPropagation(); addToCart(btn.dataset.id); });
@@ -909,6 +1018,11 @@ function buildProductCard(p, forManage){
   card.className = 'pcard';
   card.dataset.pid = p.id;
   card.style.cursor = 'pointer';
+
+  const canEdit = forManage && canEditProduct(currentUser);
+  const canDel = forManage && canDeleteProduct(currentUser);
+  const canChangeStock = forManage && (canEditProduct(currentUser));
+
   card.innerHTML = `
     <div class="thumb">${p.imageUrl ? `<img src="${p.imageUrl}" alt="">` : (p.emoji||'🛍️')}
       <span class="stock-tag ${inStock?'ok':''}">${inStock ? 'متوفر ('+p.stock+')' : 'نفدت الكمية'}</span>
@@ -922,10 +1036,16 @@ function buildProductCard(p, forManage){
         <span class="price">${money(p.price)}</span>
         ${forManage ? '' : `<button class="add-btn" ${inStock?'':'disabled'} data-id="${p.id}">أضف للسلة</button>`}
       </div>
-      ${forManage ? `
+      ${canChangeStock ? `
+      <div class="qty-mini">
+        <button data-stock-minus="${p.id}">−</button>
+        <span>الكمية: ${p.stock||0}</span>
+        <button data-stock-plus="${p.id}">+</button>
+      </div>` : ''}
+      ${(canEdit || canDel) ? `
       <div class="admin-actions">
-        <button class="edit-mini" data-edit="${p.id}">تعديل</button>
-        <button class="del-mini" data-del="${p.id}">حذف</button>
+        ${canEdit ? `<button class="edit-mini" data-edit="${p.id}">تعديل</button>` : ''}
+        ${canDel ? `<button class="del-mini" data-del="${p.id}">حذف</button>` : ''}
       </div>` : ''}
     </div>`;
   return card;
@@ -933,19 +1053,30 @@ function buildProductCard(p, forManage){
 
 function renderMyProducts(){
   const host = el('#myProductsGrid');
-  if(!host || currentUser.role!=='owner') return;
+  if(!host || !isStaff(currentUser)) return;
   host.innerHTML = '';
   allProducts.forEach(p=> host.appendChild(buildProductCard(p, true)));
   host.querySelectorAll('[data-edit]').forEach(btn=>{
     btn.addEventListener('click', (e)=>{ e.stopPropagation(); startEditProduct(btn.dataset.edit); });
   });
   host.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{ e.stopPropagation(); pendingDeleteId = btn.dataset.del; el('#confirmModal').classList.add('open'); });
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); pendingDelete = {type:'product', id:btn.dataset.del}; el('#confirmModalText').textContent = 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.'; el('#confirmModal').classList.add('open'); });
+  });
+  host.querySelectorAll('[data-stock-plus]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); adjustStock(btn.dataset.stockPlus, 1); });
+  });
+  host.querySelectorAll('[data-stock-minus]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); adjustStock(btn.dataset.stockMinus, -1); });
   });
 }
 
-function escapeHtml(str){
-  const d = document.createElement('div'); d.textContent = str||''; return d.innerHTML;
+async function adjustStock(productId, delta){
+  const p = allProducts.find(x=>x.id===productId);
+  if(!p) return;
+  const newStock = Math.max(0, (p.stock||0) + delta);
+  try{
+    await updateDoc(doc(db,'products',productId), {stock:newStock});
+  }catch(err){ toast('تعذر تحديث الكمية: '+err.message,'err'); }
 }
 
 el('#searchInput').addEventListener('input', (e)=>{ searchTerm = e.target.value; renderProducts(); });
@@ -956,17 +1087,26 @@ function updateStoreStats(){
 }
 
 /* --------------------------------------------------------------
-   حذف منتج (تأكيد)
+   تأكيد الحذف (منتج / مستخدم)
    -------------------------------------------------------------- */
-el('#cancelDeleteBtn').addEventListener('click', ()=>{ el('#confirmModal').classList.remove('open'); pendingDeleteId=null; });
+el('#cancelDeleteBtn').addEventListener('click', ()=>{ el('#confirmModal').classList.remove('open'); pendingDelete=null; });
 el('#confirmDeleteBtn').addEventListener('click', async ()=>{
-  if(!pendingDeleteId) return;
+  if(!pendingDelete) return;
   try{
-    await deleteDoc(doc(db,'products',pendingDeleteId));
-    toast('تم حذف المنتج','ok');
+    if(pendingDelete.type==='product'){
+      const p = allProducts.find(x=>x.id===pendingDelete.id);
+      await deleteDoc(doc(db,'products',pendingDelete.id));
+      await logActivity('product_delete', `حذف منتج: ${p ? p.name : pendingDelete.id}`);
+      toast('تم حذف المنتج','ok');
+    }else if(pendingDelete.type==='user'){
+      const u = allUsers.find(x=>x.id===pendingDelete.id);
+      await deleteDoc(doc(db,'users',pendingDelete.id));
+      await logActivity('user_delete', `حذف مستخدم: ${u ? u.username : pendingDelete.id}`);
+      toast('تم حذف المستخدم','ok');
+    }
   }catch(err){ toast('تعذر الحذف: '+err.message,'err'); }
   el('#confirmModal').classList.remove('open');
-  pendingDeleteId = null;
+  pendingDelete = null;
 });
 
 /* --------------------------------------------------------------
@@ -985,12 +1125,18 @@ async function saveCart(){
   await setDoc(cartDocRef(), { items: cartItems, updatedAt: new Date().toISOString() });
 }
 
+function requireLogin(msg){
+  if(!currentUser){ toast(msg || 'يجب تسجيل الدخول أولاً','err'); openAuthModal(); return false; }
+  return true;
+}
+
 async function addToCart(productId){
+  if(!requireLogin('سجّل الدخول لإضافة منتجات إلى سلتك')) return;
   const p = allProducts.find(x=>x.id===productId);
   if(!p) return;
   const existing = cartItems.find(x=>x.productId===productId);
   if(existing){ existing.qty += 1; }
-  else{ cartItems.push({productId, name:p.name, price:p.price, emoji:p.emoji||'🛍️', qty:1}); }
+  else{ cartItems.push({productId, name:p.name, price:p.price, emoji:p.emoji||'🛍️', imageUrl:p.imageUrl||'', qty:1}); }
   await saveCart();
   toast('أُضيف "'+p.name+'" إلى السلة','ok');
   openCart();
@@ -1021,7 +1167,7 @@ function renderCart(){
     const row = document.createElement('div');
     row.className = 'cart-row';
     row.innerHTML = `
-      <div class="cart-thumb">${item.emoji}</div>
+      <div class="cart-thumb">${item.imageUrl ? `<img src="${item.imageUrl}">` : item.emoji}</div>
       <div class="cart-info">
         <h4>${escapeHtml(item.name)}</h4>
         <div class="unit">${money(item.price)} / للقطعة</div>
@@ -1048,8 +1194,10 @@ function renderCart(){
   });
 }
 
-/* فتح/إغلاق السلة */
-function openCart(){ el('#cartDrawer').classList.add('open'); el('#drawerOverlay').classList.add('open'); }
+function openCart(){
+  if(!requireLogin('سجّل الدخول لعرض سلتك')) return;
+  el('#cartDrawer').classList.add('open'); el('#drawerOverlay').classList.add('open');
+}
 function closeCart(){ el('#cartDrawer').classList.remove('open'); el('#drawerOverlay').classList.remove('open'); }
 el('#openCartBtn').addEventListener('click', openCart);
 el('#bnCart').addEventListener('click', openCart);
@@ -1060,6 +1208,7 @@ el('#drawerOverlay').addEventListener('click', closeCart);
    إتمام الطلب
    -------------------------------------------------------------- */
 el('#checkoutBtn').addEventListener('click', async ()=>{
+  if(!requireLogin('سجّل الدخول لإتمام الطلب')) return;
   if(cartItems.length===0) return;
   const total = cartItems.reduce((s,i)=>s+i.price*i.qty,0);
   try{
@@ -1071,7 +1220,6 @@ el('#checkoutBtn').addEventListener('click', async ()=>{
       createdAt: new Date().toLocaleString('ar-EG'),
       createdAtISO: new Date().toISOString()
     });
-    // تحديث المخزون
     for(const item of cartItems){
       const prod = allProducts.find(p=>p.id===item.productId);
       if(prod){
@@ -1079,6 +1227,7 @@ el('#checkoutBtn').addEventListener('click', async ()=>{
         await updateDoc(doc(db,'products',item.productId), {stock:newStock});
       }
     }
+    await logActivity('order_placed', `طلب جديد بقيمة ${money(total)} من ${currentUser.username}`);
     cartItems = [];
     await saveCart();
     closeCart();
@@ -1115,14 +1264,14 @@ function renderMyOrders(orders){
         <div><h4>طلب #${o.id.slice(0,6)}</h4><div class="date">${o.createdAt}</div></div>
         <span class="status-pill status-${o.status}">${STATUS_LABELS[o.status]||o.status}</span>
       </div>
-      <div class="order-items">${o.items.map(i=>`${i.emoji} ${escapeHtml(i.name)} × ${i.qty}`).join(' — ')}</div>
+      <div class="order-items">${o.items.map(i=>`${i.emoji||'🛍️'} ${escapeHtml(i.name)} × ${i.qty}`).join(' — ')}</div>
       <div class="order-foot"><span></span><b class="price">${money(o.total)}</b></div>`;
     host.appendChild(div);
   });
 }
 
 /* --------------------------------------------------------------
-   لوحة التحكم (لصاحب المتجر): إضافة/تعديل منتجات
+   لوحة التحكم: إضافة/تعديل منتجات
    -------------------------------------------------------------- */
 function buildEmojiPicker(){
   const host = el('#emojiPicker');
@@ -1140,7 +1289,6 @@ function buildEmojiPicker(){
   });
 }
 
-/* القوائم الرئيسية والفرعية */
 function buildCategorySelects(){
   const mainSel = el('#pCategory');
   mainSel.innerHTML = '';
@@ -1163,7 +1311,6 @@ function populateSubcategories(){
   });
 }
 
-/* رفع صورة المنتج وتحويلها إلى صيغة قابلة للتخزين */
 el('#pImageFile').addEventListener('change', (e)=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -1184,6 +1331,9 @@ el('#pImageUrl').addEventListener('input', ()=>{
 
 el('#productForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
+  if(!canAddProduct(currentUser)){ toast('لا تملك صلاحية إضافة المنتجات','err'); return; }
+  if(editingProductId && !canEditProduct(currentUser)){ toast('لا تملك صلاحية تعديل المنتجات','err'); return; }
+
   const payload = {
     name: el('#pName').value.trim(),
     price: parseFloat(el('#pPrice').value),
@@ -1201,10 +1351,12 @@ el('#productForm').addEventListener('submit', async (e)=>{
   try{
     if(editingProductId){
       await updateDoc(doc(db,'products',editingProductId), payload);
+      await logActivity('product_edit', `تعديل منتج: ${payload.name}`);
       toast('تم تحديث المنتج','ok');
       cancelEdit();
     }else{
-      await addDoc(productsCol, {...payload, reviews:[], createdBy:currentUser.username, createdAt:new Date().toLocaleString('ar-EG')});
+      await addDoc(productsCol, {...payload, reviews:[], createdBy:currentUser.username, createdAt:new Date().toLocaleString('ar-EG'), createdAtISO:new Date().toISOString()});
+      await logActivity('product_add', `إضافة منتج جديد: ${payload.name}`);
       toast('تمت إضافة المنتج للمتجر 🎉','ok');
       el('#productForm').reset();
       buildEmojiPicker();
@@ -1216,6 +1368,7 @@ el('#productForm').addEventListener('submit', async (e)=>{
 });
 
 function startEditProduct(id){
+  if(!canEditProduct(currentUser)){ toast('لا تملك صلاحية تعديل المنتجات','err'); return; }
   const p = allProducts.find(x=>x.id===id);
   if(!p) return;
   editingProductId = id;
@@ -1237,7 +1390,7 @@ function startEditProduct(id){
   el('#cancelEditBtn').classList.remove('hidden');
   switchView('admin');
   switchDashTab('products');
-  if(isGateUnlocked) el('#productForm').scrollIntoView({behavior:'smooth'});
+  el('#productForm').scrollIntoView({behavior:'smooth'});
 }
 function cancelEdit(){
   editingProductId = null;
@@ -1296,7 +1449,7 @@ function renderReviews(reviews){
   const host = el('#reviewsHost');
   host.innerHTML = '';
   if(reviews.length===0){
-    host.innerHTML = '<p style="color:#9a9382;font-size:13px;padding-top:10px;">لا توجد تعليقات بعد.</p>';
+    host.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;padding-top:10px;">لا توجد تعليقات بعد.</p>';
     return;
   }
   [...reviews].reverse().forEach(r=>{
@@ -1310,6 +1463,7 @@ function renderReviews(reviews){
 }
 
 el('#submitReviewBtn').addEventListener('click', async ()=>{
+  if(!requireLogin('سجّل الدخول لإضافة تعليق')) return;
   if(!detailProductId) return;
   const text = el('#reviewText').value.trim();
   if(selectedStars===0){ toast('يرجى اختيار عدد النجوم أولاً','err'); return; }
@@ -1342,6 +1496,7 @@ function listenAdminOrders(){
 
 function renderAdminOrders(orders){
   const host = el('#adminOrdersList');
+  if(!host) return;
   host.innerHTML = '';
   el('#adminOrdersEmpty').classList.toggle('hidden', orders.length>0);
   orders.forEach(o=>{
@@ -1352,7 +1507,7 @@ function renderAdminOrders(orders){
         <div><h4>طلب #${o.id.slice(0,6)} — ${escapeHtml(o.username)}</h4><div class="date">${o.createdAt}</div></div>
         <span class="status-pill status-${o.status}">${STATUS_LABELS[o.status]||o.status}</span>
       </div>
-      <div class="order-items">${o.items.map(i=>`${i.emoji} ${escapeHtml(i.name)} × ${i.qty}`).join(' — ')}</div>
+      <div class="order-items">${o.items.map(i=>`${i.emoji||'🛍️'} ${escapeHtml(i.name)} × ${i.qty}`).join(' — ')}</div>
       <div class="order-foot">
         <select class="status-select" data-status="${o.id}">
           <option value="pending" ${o.status==='pending'?'selected':''}>قيد المعالجة</option>
@@ -1367,13 +1522,250 @@ function renderAdminOrders(orders){
   host.querySelectorAll('[data-status]').forEach(sel=>{
     sel.addEventListener('change', async ()=>{
       await updateDoc(doc(db,'orders',sel.dataset.status), {status: sel.value});
+      await logActivity('order_status', `تغيير حالة الطلب #${sel.dataset.status.slice(0,6)} إلى ${STATUS_LABELS[sel.value]}`);
       toast('تم تحديث حالة الطلب','ok');
     });
   });
 }
 
 function listenUserCount(){
-  onSnapshot(usersCol, (snap)=>{ el('#admStatUsers').textContent = snap.size; });
+  onSnapshot(usersCol, (snap)=>{ if(el('#admStatUsers')) el('#admStatUsers').textContent = snap.size; });
+}
+
+/* --------------------------------------------------------------
+   إدارة الأعضاء (المدير العام فقط)
+   -------------------------------------------------------------- */
+function listenAllUsersForAdmin(){
+  onSnapshot(usersCol, (snap)=>{
+    allUsers = [];
+    snap.forEach(d=> allUsers.push({id:d.id, ...d.data()}));
+    if(currentDashTab==='users') renderUsersPanel();
+  });
+}
+
+function renderUsersPanel(){
+  if(!canManageUsers(currentUser)) return;
+  const staffHost = el('#staffListHost');
+  const custHost = el('#customerListHost');
+  staffHost.innerHTML = ''; custHost.innerHTML = '';
+
+  const staff = allUsers.filter(u=> ['assistant','manager','super_admin'].includes(u.role||'customer'));
+  const customers = allUsers.filter(u=> (u.role||'customer')==='customer');
+
+  if(staff.length===0) staffHost.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;">لا يوجد أعضاء فريق إداري بعد.</p>';
+  if(customers.length===0) custHost.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;">لا يوجد مستخدمون عاديون بعد.</p>';
+
+  staff.forEach(u=> staffHost.appendChild(buildUserRow(u)));
+  customers.forEach(u=> custHost.appendChild(buildUserRow(u)));
+}
+
+function buildUserRow(u){
+  const role = u.role || 'customer';
+  const isSelf = currentUser && u.username===currentUser.username;
+  const isSA = role==='super_admin';
+  const row = document.createElement('div');
+  row.className = 'user-row';
+
+  let controlsHtml = `<span class="role-badge role-${role}">${ROLE_LABELS[role]}</span>`;
+
+  if(!isSA){
+    controlsHtml += `
+      <select class="status-select" data-role-select="${u.id}">
+        <option value="customer" ${role==='customer'?'selected':''}>عميل</option>
+        <option value="assistant" ${role==='assistant'?'selected':''}>مساعد مدير</option>
+        <option value="manager" ${role==='manager'?'selected':''}>مدير</option>
+      </select>
+      <label class="analytics-check">
+        <input type="checkbox" data-analytics-toggle="${u.id}" ${u.canViewAnalytics?'checked':''}>
+        صلاحية التحليلات
+      </label>`;
+  }
+  if(!isSelf){
+    controlsHtml += `<button class="del-mini" data-user-del="${u.id}" style="padding:8px 14px;">حذف</button>`;
+  }
+
+  row.innerHTML = `
+    <div class="user-main">
+      <b>${escapeHtml(u.username)}${isSelf?' (أنت)':''}</b>
+      <span>انضم: ${u.createdAt||'—'}</span>
+    </div>
+    <div class="user-controls">${controlsHtml}</div>`;
+  return row;
+}
+
+document.addEventListener('change', async (e)=>{
+  if(e.target.matches('[data-role-select]')){
+    const id = e.target.dataset.roleSelect;
+    const newRole = e.target.value;
+    const target = allUsers.find(x=>x.id===id);
+    try{
+      await updateDoc(doc(db,'users',id), {role:newRole});
+      await logActivity('role_change', `تغيير صلاحية ${target?target.username:id} إلى ${ROLE_LABELS[newRole]}`);
+      toast('تم تحديث صلاحية المستخدم','ok');
+    }catch(err){ toast('تعذر التحديث: '+err.message,'err'); }
+  }
+  if(e.target.matches('[data-analytics-toggle]')){
+    const id = e.target.dataset.analyticsToggle;
+    const checked = e.target.checked;
+    const target = allUsers.find(x=>x.id===id);
+    try{
+      await updateDoc(doc(db,'users',id), {canViewAnalytics:checked});
+      await logActivity('role_change', `${checked?'منح':'سحب'} صلاحية التحليلات من ${target?target.username:id}`);
+      toast('تم تحديث صلاحية التحليلات','ok');
+    }catch(err){ toast('تعذر التحديث: '+err.message,'err'); }
+  }
+});
+
+document.addEventListener('click', (e)=>{
+  if(e.target.matches('[data-user-del]')){
+    const id = e.target.dataset.userDel;
+    pendingDelete = {type:'user', id};
+    el('#confirmModalText').textContent = 'هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.';
+    el('#confirmModal').classList.add('open');
+  }
+});
+
+/* --------------------------------------------------------------
+   لوحة التحليلات
+   -------------------------------------------------------------- */
+function last14Days(){
+  const days = [];
+  for(let i=13;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(d.toISOString().slice(0,10));
+  }
+  return days;
+}
+function dayLabel(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('ar-EG', {day:'2-digit', month:'2-digit'});
+}
+function chartColors(){
+  const css = getComputedStyle(document.documentElement);
+  return {
+    emerald: css.getPropertyValue('--emerald').trim() || '#0f3d3e',
+    gold: css.getPropertyValue('--gold').trim() || '#c9962c',
+    plum: css.getPropertyValue('--plum').trim() || '#7a2048',
+    ink: css.getPropertyValue('--ink').trim() || '#16302c',
+    line: css.getPropertyValue('--line').trim() || '#e7ddc9',
+    danger: css.getPropertyValue('--danger').trim() || '#b3352c',
+    ok: css.getPropertyValue('--ok').trim() || '#2f7a52'
+  };
+}
+function ensureChart(canvasId, config){
+  const canvas = el('#'+canvasId);
+  if(!canvas) return;
+  const existing = Chart.getChart(canvas);
+  if(existing) existing.destroy();
+  chartInstances[canvasId] = new Chart(canvas, config);
+}
+
+async function loadAnalytics(){
+  if(!userCanViewAnalytics(currentUser)) return;
+  try{
+    const [ordersSnap, usersSnap, activitySnap] = await Promise.all([
+      getDocs(ordersCol), getDocs(usersCol), getDocs(query(activityCol, orderBy('createdAtISO','desc')))
+    ]);
+    const orders = []; ordersSnap.forEach(d=> orders.push({id:d.id, ...d.data()}));
+    const users = []; usersSnap.forEach(d=> users.push({id:d.id, ...d.data()}));
+    const activity = []; activitySnap.forEach(d=> activity.push({id:d.id, ...d.data()}));
+
+    renderAnalyticsStats(orders, users, activity);
+    renderAnalyticsCharts(orders, users, activity);
+    renderActivityFeed(activity);
+  }catch(err){
+    toast('تعذر تحميل بيانات التحليلات: '+err.message,'err');
+  }
+}
+
+function renderAnalyticsStats(orders, users, activity){
+  const revenue = orders.reduce((s,o)=>s+(o.total||0),0);
+  const logins = activity.filter(a=>a.type==='login').length;
+  const staffCount = users.filter(u=> ['assistant','manager','super_admin'].includes(u.role||'customer')).length;
+  const host = el('#analyticsStatsRow');
+  host.innerHTML = `
+    <div class="stat-mini"><b>${orders.length}</b><span>إجمالي الطلبات</span></div>
+    <div class="stat-mini"><b>${Math.round(revenue).toLocaleString('ar-IQ')}</b><span>إجمالي الإيرادات (د.ع)</span></div>
+    <div class="stat-mini"><b>${users.length}</b><span>إجمالي الأعضاء</span></div>
+    <div class="stat-mini"><b>${staffCount}</b><span>أعضاء الفريق الإداري</span></div>
+    <div class="stat-mini"><b>${logins}</b><span>مرات تسجيل الدخول (كل السجل)</span></div>
+    <div class="stat-mini"><b>${allProducts.length}</b><span>إجمالي المنتجات</span></div>`;
+}
+
+function renderAnalyticsCharts(orders, users, activity){
+  const days = last14Days();
+  const labels = days.map(dayLabel);
+  const c = chartColors();
+
+  // الطلبات باليوم
+  const ordersByDay = days.map(d=> orders.filter(o=> (o.createdAtISO||'').slice(0,10)===d).length);
+  ensureChart('chartOrdersTime', {
+    type:'line',
+    data:{labels, datasets:[{label:'طلبات', data:ordersByDay, borderColor:c.emerald, backgroundColor:c.emerald+'33', tension:.35, fill:true}]},
+    options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}
+  });
+
+  // الإيراد باليوم
+  const revByDay = days.map(d=> orders.filter(o=> (o.createdAtISO||'').slice(0,10)===d).reduce((s,o)=>s+(o.total||0),0));
+  ensureChart('chartRevenueTime', {
+    type:'bar',
+    data:{labels, datasets:[{label:'إيراد', data:revByDay, backgroundColor:c.gold}]},
+    options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+  });
+
+  // توزيع الحالات
+  const statusKeys = ['pending','shipped','done','cancelled'];
+  const statusCounts = statusKeys.map(s=> orders.filter(o=>o.status===s).length);
+  ensureChart('chartStatusDist', {
+    type:'doughnut',
+    data:{labels:statusKeys.map(s=>STATUS_LABELS[s]), datasets:[{data:statusCounts, backgroundColor:[c.gold,'#4a90c4',c.ok,c.danger]}]},
+    options:{plugins:{legend:{position:'bottom'}}}
+  });
+
+  // الأكثر مبيعاً
+  const salesMap = {};
+  orders.forEach(o=> (o.items||[]).forEach(i=>{ salesMap[i.name] = (salesMap[i.name]||0) + i.qty; }));
+  const topEntries = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  ensureChart('chartTopProducts', {
+    type:'bar',
+    data:{labels:topEntries.map(e=>e[0]), datasets:[{label:'الكمية المباعة', data:topEntries.map(e=>e[1]), backgroundColor:c.emerald}]},
+    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true, ticks:{precision:0}}}}
+  });
+
+  // توزيع الأعضاء حسب الصلاحية
+  const roleKeys = ['customer','assistant','manager','super_admin'];
+  const roleCounts = roleKeys.map(r=> users.filter(u=>(u.role||'customer')===r).length);
+  ensureChart('chartUserRoles', {
+    type:'pie',
+    data:{labels:roleKeys.map(r=>ROLE_LABELS[r]), datasets:[{data:roleCounts, backgroundColor:['#9aa8a2',c.emerald,c.gold,c.plum]}]},
+    options:{plugins:{legend:{position:'bottom'}}}
+  });
+
+  // تسجيلات الدخول باليوم
+  const loginsByDay = days.map(d=> activity.filter(a=> a.type==='login' && (a.createdAtISO||'').slice(0,10)===d).length);
+  ensureChart('chartLogins', {
+    type:'line',
+    data:{labels, datasets:[{label:'تسجيلات دخول', data:loginsByDay, borderColor:c.plum, backgroundColor:c.plum+'33', tension:.35, fill:true}]},
+    options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}}}
+  });
+}
+
+const ACTIVITY_LABELS = {
+  login:'تسجيل دخول', register:'حساب جديد', product_add:'إضافة منتج', product_edit:'تعديل منتج',
+  product_delete:'حذف منتج', order_placed:'طلب جديد', order_status:'تغيير حالة طلب',
+  role_change:'تغيير صلاحية', user_delete:'حذف مستخدم'
+};
+function renderActivityFeed(activity){
+  const host = el('#activityFeed');
+  host.innerHTML = '';
+  if(activity.length===0){ host.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;">لا يوجد نشاط مسجل بعد.</p>'; return; }
+  activity.slice(0,60).forEach(a=>{
+    const row = document.createElement('div');
+    row.className = 'activity-row';
+    row.innerHTML = `<span><span class="a-type">${ACTIVITY_LABELS[a.type]||a.type}</span> — ${escapeHtml(a.detail||'')}</span><span class="a-time">${a.createdAt||''}</span>`;
+    host.appendChild(row);
+  });
 }
 </script>
 </body>
