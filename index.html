@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر السحاب الذكي - Firebase Store</title>
+    <style>
+        :root { 
+            --primary: #6366f1; 
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { 
+            background: var(--bg); 
+            min-height: 100vh; 
+            color: #1f2937; 
+            overflow-x: hidden;
+            padding-bottom: 60px;
+        }
+        
+        /* 🔐 واجهة التحكم بالدخول */
+        .auth-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 850px; }
+        .card { background: white; padding: 35px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); width: 380px; }
+        h2 { text-align: center; margin-bottom: 25px; color: #1e293b; font-size: 22px; }
+        input.auth-input, textarea.auth-input { width: 100%; padding: 14px; margin: 12px 0; border: 2px solid #e2e8f0; border-radius: 8px; text-align: right; font-size: 15px; outline: none; transition: 0.3s; resize: none; }
+        input.auth-input:focus, textarea.auth-input:focus { border-color: var(--primary); }
+        button { padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: var(--primary-hover); }
+        .btn-register { background: var(--success); width: 100%; }
+        .btn-register:hover { background: var(--success-hover); }
+        .btn-login { width: 100%; }
+        
+        /* 🏪 واجهة المتجر الرئيسية */
+        .main-store { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .store-header { background: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
+        .store-header h1 { color: #0f172a; font-size: 24px; }
+        .store-header p { color: #64748b; font-size: 14px; margin-top: 4px; }
+        
+        .top-actions { display: flex; gap: 12px; }
+        .nav-btn { padding: 12px 20px; font-size: 14px; border-radius: 8px; display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        .cart-toggle-btn { background: #0284c7; }
+        .cart-toggle-btn:hover { background: #0369a1; }
+        .logout-btn { background: var(--danger); }
+        .logout-btn:hover { background: var(--danger-hover); }
+
+        /* تقسيم الصفحات: المنتجات وإضافة منتج */
+        .store-content { display: grid; grid-template-columns: 3fr 1fr; gap: 25px; }
+        @media (max-width: 900px) {
+            .store-content { grid-template-columns: 1fr; }
+        }
+
+        /* معرض المنتجات */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+        .product-img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; background: #f1f5f9; margin-bottom: 15px; }
+        .product-title { font-size: 18px; color: #0f172a; margin-bottom: 8px; font-weight: bold; }
+        .product-desc { font-size: 13px; color: #64748b; margin-bottom: 15px; line-height: 1.5; height: 40px; overflow: hidden; }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; }
+        .product-price { font-size: 18px; color: var(--success); font-weight: bold; direction: ltr; }
+        .btn-add-cart { padding: 8px 14px; font-size: 13px; background: var(--primary); border-radius: 6px; }
+
+        /* لوحة التحكم الجانبية لإضافة منتج */
+        .admin-panel { background: white; padding: 25px; border-radius: 14px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); height: fit-content; }
+        .admin-panel h3 { margin-bottom: 15px; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        .btn-add-product { width: 100%; background: #f59e0b; }
+        .btn-add-product:hover { background: #d97706; }
+
+        /* 🛒 عربة التسوق الجانبية */
+        .sidebar { position: fixed; top: 0; right: -360px; width: 350px; height: 100vh; background: white; box-shadow: -10px 0 30px rgba(0,0,0,0.3); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; padding: 30px 20px; display: flex; flex-direction: column; }
+        .sidebar.open { right: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        .sidebar-close { background: #64748b; padding: 6px 12px; font-size: 12px; }
+        
+        .cart-list { list-style: none; overflow-y: auto; flex-grow: 1; }
+        .cart-item { background: #f8fafc; padding: 12px; margin-bottom: 12px; border-radius: 8px; border-right: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .cart-item-info h4 { font-size: 14px; color: #0f172a; }
+        .cart-item-info span { font-size: 13px; color: var(--success); font-weight: bold; }
+        .cart-item-qty { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .btn-remove-item { background: none; color: var(--danger); padding: 4px; font-size: 13px; cursor: pointer; }
+        .btn-remove-item:hover { color: #b91c1c; }
+
+        .cart-footer { border-top: 2px solid #e2e8f0; padding-top: 15px; margin-top: 15px; }
+        .cart-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #0f172a; }
+        .btn-checkout { width: 100%; background: var(--success); text-align: center; }
+        .btn-checkout:hover { background: var(--success-hover); }
+
+        .hidden { display: none !important; }
+        .badge { background: red; color: white; border-radius: 50%; padding: 2px 7px; font-size: 11px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-screen" id="authContainer">
+        <div class="container">
+            <div class="card">
+                <h2>إنشاء حساب جديد في المتجر 🛍️</h2>
+                <form id="registerForm">
+                    <input type="text" id="regUser" class="auth-input" placeholder="اسم المستخدم الجديد" required>
+                    <input type="password" id="regPass" class="auth-input" placeholder="كلمة المرور" required>
+                    <button type="submit" class="btn-register">إنشاء الحساب والبدء</button>
+                </form>
+            </div>
+            <div class="card">
+                <h2>تسجيل الدخول للمتجر</h2>
+                <form id="loginForm">
+                    <input type="text" id="logUser" class="auth-input" placeholder="اسم المستخدم" required>
+                    <input type="password" id="logPass" class="auth-input" placeholder="كلمة المرور" required>
+                    <button type="submit" class="btn-login">دخول المتجر</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-store" id="storeContainer">
+        <div class="store-header">
+            <div>
+                <h1>مرحباً بك في متجر السحاب 🛒</h1>
+                <p>تسوق سعيد، <span id="currentUserName">المستخدم</span></p>
+            </div>
+            <div class="top-actions">
+                <button class="nav-btn cart-toggle-btn" id="openCartBtn">
+                    🛒 سلة المشتريات <span class="badge" id="cartBadge">0</span>
+                </button>
+                <button class="nav-btn logout-btn" id="logoutBtn">خروج</button>
+            </div>
+        </div>
+
+        <div class="store-content">
+            <div>
+                <h2 style="color: white; text-align: right; margin-bottom: 15px;">المنتجات المتاحة ✨</h2>
+                <div class="products-grid" id="productsGrid">
+                    </div>
+            </div>
+
+            <div class="admin-panel">
+                <h3>إضافة منتج جديد ➕</h3>
+                <form id="addProductForm">
+                    <input type="text" id="prodTitle" class="auth-input" placeholder="اسم المنتج" required>
+                    <input type="number" id="prodPrice" class="auth-input" placeholder="السعر ($)" required>
+                    <input type="text" id="prodImg" class="auth-input" placeholder="رابط صورة المنتج (URL)">
+                    <textarea id="prodDesc" class="auth-input" rows="3" placeholder="وصف قصير للمنتج" required></textarea>
+                    <button type="submit" class="btn-add-product">نشر المنتج في المتجر</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="cartSidebar">
+        <div class="sidebar-header">
+            <h3>🛒 سلتك الحالية:</h3>
+            <button class="sidebar-close" id="closeCartBtn">إغلاق ✕</button>
+        </div>
+        <ul class="cart-list" id="cartList">
+            </ul>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>الإجمالي:</span>
+                <span id="cartTotalSum">$0</span>
+            </div>
+            <button class="btn-checkout" id="checkoutBtn">تأكيد عملية الشراء 💳</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 🔑 إعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyC08D8BIPgBwlxgUQt4cu7vPld_W47HeKo",
+            authDomain: "my-members-app-3a0b5.firebaseapp.com",
+            projectId: "my-members-app-3a0b5",
+            storageBucket: "my-members-app-3a0b5.firebasestorage.app",
+            messagingSenderId: "422992377907",
+            appId: "1:422992377907:web:8fb06874ccf50bc4c24b46",
+            measurementId: "G-C4W5QNSEDM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // العناصر البرمجية واجهات وتغييرات CSS
+        const authContainer = document.getElementById('authContainer');
+        const storeContainer = document.getElementById('storeContainer');
+        const currentUserName = document.getElementById('currentUserName');
+        const productsGrid = document.getElementById('productsGrid');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartList = document.getElementById('cartList');
+        const cartBadge = document.getElementById('cartBadge');
+        const cartTotalSum = document.getElementById('cartTotalSum');
+
+        // مصفوفة السلة المحلية للتحكم المؤقت أثناء التصفح
+        let cart = [];
+
+        // التحقق المباشر من جلسة المستخدم المخزنة
+        const checkSession = () => {
+            const savedUser = localStorage.getItem('activeUser');
+            if (savedUser) {
+                showStore(savedUser);
+            }
+        };
+
+        const showStore = (username) => {
+            authContainer.classList.add('hidden');
+            storeContainer.style.display = 'block';
+            currentUserName.innerText = username + " 👋";
+            loadProducts(); 
+        };
+
+        // 🛍️ جلب المنتجات المتاحة من السحاب (Firestore)
+        async function loadProducts() {
+            productsGrid.innerHTML = '<p style="color: white; grid-column: 1/-1; text-align: center;">جاري تحميل المنتجات من السحابة...</p>';
+            try {
+                // جلب المنتجات مرتبة من الأحدث إلى الأقدم
+                const querySnapshot = await getDocs(collection(db, "products"));
+                productsGrid.innerHTML = '';
+                
+                if (querySnapshot.empty) {
+                    productsGrid.innerHTML = '<p style="color: white; grid-column: 1/-1; text-align: center;">لا توجد منتجات معروضة حالياً. كن أول من يضيف منتجاً!</p>';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const product = doc.data();
+                    const id = doc.id;
+                    const fallbackImg = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"; // صورة افتراضية عند عدم وضع رابط
+                    
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${product.imageUrl || fallbackImg}" class="product-img" alt="${product.title}">
+                        <div>
+                            <div class="product-title">${product.title}</div>
+                            <div class="product-desc">${product.description}</div>
+                        </div>
+                        <div class="product-footer">
+                            <span class="product-price">$${product.price}</span>
+                            <button class="btn-add-cart" data-id="${id}" data-title="${product.title}" data-price="${product.price}">إضافة للسلة 🛒</button>
+                        </div>
+                    `;
+                    productsGrid.appendChild(card);
+                });
+
+                // تفعيل أزرار الإضافة للسلة بعد بناء المنتجات
+                document.querySelectorAll('.btn-add-cart').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        const title = btn.getAttribute('data-title');
+                        const price = parseFloat(btn.getAttribute('data-price'));
+                        addToCart(id, title, price);
+                    });
+                });
+
+            } catch (error) {
+                productsGrid.innerHTML = '<p style="color: var(--danger); grid-column: 1/-1; text-align: center;">خطأ أثناء جلب المنتجات</p>';
+            }
+        }
+
+        // ➕ إضافة منتج جديد وحفظه في الفايربيس
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('prodTitle').value.trim();
+            const price = document.getElementById('prodPrice').value.trim();
+            const imageUrl = document.getElementById('prodImg').value.trim();
+            const description = document.getElementById('prodDesc').value.trim();
+            const user = localStorage.getItem('activeUser') || 'أدمن';
+
+            try {
+                await addDoc(collection(db, "products"), {
+                    title: title,
+                    price: price,
+                    imageUrl: imageUrl,
+                    description: description,
+                    createdBy: user,
+                    createdAt: new Date().toISOString()
+                });
+
+                alert("🎉 تم نشر منتجك بنجاح في السحابة ووضعه في المعرض!");
+                document.getElementById('addProductForm').reset();
+                loadProducts(); // إعادة إنعاش قائمة المنتجات
+            } catch (error) {
+                alert("خطأ أثناء إضافة المنتج: " + error.message);
+            }
+        });
+
+        // 🛒 منطق وإدارة سلة المشتريات المحلية
+        function addToCart(id, title, price) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.qty += 1;
+            } else {
+                cart.push({ id, title, price, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            cartList.innerHTML = '';
+            let total = 0;
+            let totalCount = 0;
+
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                totalCount += item.qty;
+
+                const li = document.createElement('li');
+                li.className = 'cart-item';
+                li.innerHTML = `
+                    <div class="cart-item-info">
+                        <h4>${item.title}</h4>
+                        <span>$${item.price}</span>
+                        <div class="cart-item-qty">الكمية: ${item.qty}</div>
+                    </div>
+                    <button class="btn-remove-item" data-id="${item.id}">حذف</button>
+                `;
+                cartList.appendChild(li);
+            });
+
+            cartBadge.innerText = totalCount;
+            cartTotalSum.innerText = `$${total}`;
+
+            // تفعيل أزرار الحذف من السلة الجانبية
+            document.querySelectorAll('.btn-remove-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-id');
+                    cart = cart.filter(item => item.id !== id);
+                    updateCartUI();
+                });
+            });
+        }
+
+        // 💳 إتمام الشراء وحفظ الطلب في الفايربيس
+        document.getElementById('checkoutBtn').addEventListener('click', async () => {
+            if (cart.length === 0) {
+                alert("سلتك فارغة حالياً! أضف بعض المنتجات أولاً.");
+                return;
+            }
+
+            const username = localStorage.getItem('activeUser');
+            try {
+                await addDoc(collection(db, "orders"), {
+                    customer: username,
+                    items: cart,
+                    totalPrice: cartTotalSum.innerText,
+                    orderDate: new Date().toLocaleString('ar-EG')
+                });
+
+                alert("🎉 تمت عملية الشراء بنجاح! تم حفظ طلبك وإرساله للإدارة في الفايربيس.");
+                cart = [];
+                updateCartUI();
+                cartSidebar.classList.remove('open');
+            } catch (error) {
+                alert("حدث خطأ أثناء إتمام الطلب: " + error.message);
+            }
+        });
+
+        // 🔐 أحداث إنشاء حساب جديد للمتجر
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('regUser').value.trim();
+            const password = document.getElementById('regPass').value;
+
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("username", "==", username));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    alert("❌ هذا الحساب مسجل مسبقاً في المتجر!");
+                    return;
+                }
+
+                await addDoc(usersRef, {
+                    username: username,
+                    password: password,
+                    createdAt: new Date().toLocaleString('ar-EG')
+                });
+
+                alert("🎉 تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.");
+                document.getElementById('registerForm').reset();
+            } catch (error) {
+                alert("حدث خطأ أثناء التسجيل: " + error.message);
+            }
+        });
+
+        // 🔑 أحداث تسجيل الدخول إلى المتجر
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('logUser').value.trim();
+            const password = document.getElementById('logPass').value;
+
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("username", "==", username), where("password", "==", password));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    localStorage.setItem('activeUser', username);
+                    showStore(username);
+                } else {
+                    alert("❌ خطأ في اسم المستخدم أو كلمة المرور!");
+                }
+            } catch (error) {
+                alert("خطأ أثناء الاتصال بالخادم: " + error.message);
+            }
+        });
+
+        // أحداث التحكم بفتح وإغلاق القائمة الجانبية للسلة
+        document.getElementById('openCartBtn').addEventListener('click', () => cartSidebar.classList.add('open'));
+        document.getElementById('closeCartBtn').addEventListener('click', () => cartSidebar.classList.remove('open'));
+
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('activeUser');
+            cartSidebar.classList.remove('open');
+            storeContainer.style.display = 'none';
+            authContainer.classList.remove('hidden');
+            cart = [];
+            updateCartUI();
+            document.getElementById('loginForm').reset();
+        });
+
+        // بدء الفحص التلقائي عند تحميل الصفحة
+        checkSession();
+    </script>
+</body>
+</html>
