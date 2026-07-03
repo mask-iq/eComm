@@ -415,8 +415,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
     <div class="nav-desktop">
       <button class="nav-btn active" data-view="store">المتجر</button>
       <button class="nav-btn" data-view="orders">طلباتي</button>
-      <button class="nav-btn hidden" id="navAdmin" data-view="admin">لوحة التحكم</button>
-      <button class="nav-btn hidden" id="navAddProduct" data-view="addproduct">🔒 إضافة منتج</button>
+      <button class="nav-btn" id="navAdmin" data-view="admin">🔒 اضافة المنتجات</button>
     </div>
 
     <div class="topbar-actions">
@@ -457,84 +456,88 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
       </div>
     </div>
 
-    <!-- ============ عرض: لوحة التحكم (لصاحب المتجر) ============ -->
+    <!-- ============ عرض: لوحة التحكم (محمي برمز دخول) ============ -->
     <div id="viewAdmin" class="hidden">
-      <h2 class="display" style="font-size:28px;margin-bottom:16px;">لوحة تحكم المتجر</h2>
-
-      <div class="stat-mini-row">
-        <div class="stat-mini"><b id="admStatProducts">0</b><span>إجمالي المنتجات</span></div>
-        <div class="stat-mini"><b id="admStatOrders">0</b><span>إجمالي الطلبات</span></div>
-        <div class="stat-mini"><b id="admStatRevenue">0</b><span>إجمالي المبيعات (ر.س)</span></div>
-        <div class="stat-mini"><b id="admStatUsers">0</b><span>عدد الأعضاء</span></div>
-      </div>
-
-      <div>
-        <h3 style="font-size:18px;margin-bottom:12px;">كل الطلبات الواردة</h3>
-        <div id="adminOrdersList"></div>
-        <div class="empty-state hidden" id="adminOrdersEmpty"><div class="em">📭</div><div>لا توجد طلبات بعد.</div></div>
-      </div>
-    </div>
-
-    <!-- ============ عرض: إضافة منتج (محمي برمز دخول) ============ -->
-    <div id="viewAddProduct" class="hidden">
 
       <div class="gate-wrap" id="accessGate">
         <div class="lock-ic">🔒</div>
-        <h3>منطقة محمية</h3>
-        <p>هذه الصفحة خاصة بصاحب المتجر لإضافة المنتجات الجديدة. أدخل رمز الدخول للمتابعة.</p>
+        <h3>لوحة التحكم</h3>
+        <p>هذه اللوحة خاصة بصاحب المتجر لإدارة المنتجات والطلبات. أدخل رمز الدخول للمتابعة.</p>
         <div class="field"><input class="auth-input" id="accessCodeInput" maxlength="12" placeholder="••••" autocomplete="off"></div>
         <button class="btn gold" id="accessGateBtn">دخول</button>
         <div class="gate-err" id="accessGateErr"></div>
       </div>
 
       <div id="addProductArea" class="hidden">
-        <h2 class="display" style="font-size:28px;margin-bottom:16px;">إضافة / إدارة المنتجات</h2>
-        <div class="panel-grid">
-          <div class="panel-card">
-            <h3 id="productFormTitle">إضافة منتج جديد</h3>
-            <form id="productForm">
-              <input type="hidden" id="editProductId">
-              <div class="field"><label>اسم المنتج</label><input class="auth-input" id="pName" required placeholder="مثال: سماعة لاسلكية"></div>
+        <h2 class="display" style="font-size:28px;margin-bottom:16px;">لوحة تحكم المتجر</h2>
 
-              <div class="field">
-                <label>القائمة الرئيسية</label>
-                <select class="auth-input" id="pCategory"></select>
-              </div>
-              <div class="field">
-                <label>القائمة الفرعية</label>
-                <select class="auth-input" id="pSubcategory"></select>
-                <div class="subcat-hint">تتغيّر القائمة الفرعية تلقائياً حسب القائمة الرئيسية المختارة</div>
-              </div>
+        <div class="tabs" style="max-width:420px;margin-bottom:22px;">
+          <button class="tab-btn active" id="dashTabOverview">الإحصائيات والطلبات</button>
+          <button class="tab-btn" id="dashTabProducts">القوائم وإضافة المنتجات</button>
+        </div>
 
-              <div class="field"><label>النوع / الموديل (اختياري)</label><input class="auth-input" id="pType" placeholder="مثال: قطن 100% — مقاس L"></div>
-
-              <div class="field"><label>السعر (ر.س)</label><input class="auth-input" id="pPrice" type="number" min="0" step="0.01" required></div>
-              <div class="field"><label>الكمية المتوفرة</label><input class="auth-input" id="pStock" type="number" min="0" required></div>
-              <div class="field"><label>وصف المنتج</label><textarea class="auth-input" id="pDesc" rows="3" placeholder="اكتب وصفاً واضحاً يساعد المشتري على اتخاذ القرار"></textarea></div>
-
-              <div class="field">
-                <label>صورة المنتج</label>
-                <div class="upload-row">
-                  <img class="img-preview" id="pImgPreview" src="" style="display:none;">
-                  <input type="file" id="pImageFile" accept="image/*">
-                </div>
-                <input class="auth-input" id="pImageUrl" placeholder="أو الصق رابط صورة مباشر (اختياري)" style="margin-top:8px;">
-              </div>
-
-              <div class="field">
-                <label>أيقونة احتياطية (تظهر إن لم تُرفع صورة)</label>
-                <div class="img-emoji-picker" id="emojiPicker"></div>
-                <input type="hidden" id="pEmoji" value="🛍️">
-              </div>
-
-              <button class="btn" type="submit" id="productFormBtn">حفظ المنتج</button>
-              <button class="btn outline hidden" type="button" id="cancelEditBtn" style="margin-top:8px;">إلغاء التعديل</button>
-            </form>
+        <!-- تبويب: الإحصائيات والطلبات -->
+        <div id="dashOverview">
+          <div class="stat-mini-row">
+            <div class="stat-mini"><b id="admStatProducts">0</b><span>إجمالي المنتجات</span></div>
+            <div class="stat-mini"><b id="admStatOrders">0</b><span>إجمالي الطلبات</span></div>
+            <div class="stat-mini"><b id="admStatRevenue">0</b><span>إجمالي المبيعات (د.ع)</span></div>
+            <div class="stat-mini"><b id="admStatUsers">0</b><span>عدد الأعضاء</span></div>
           </div>
+          <h3 style="font-size:18px;margin-bottom:12px;">كل الطلبات الواردة</h3>
+          <div id="adminOrdersList"></div>
+          <div class="empty-state hidden" id="adminOrdersEmpty"><div class="em">📭</div><div>لا توجد طلبات بعد.</div></div>
+        </div>
 
-          <div>
-            <h3 style="font-size:18px;margin-bottom:12px;">منتجاتك الحالية</h3>
-            <div class="grid" id="myProductsGrid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));"></div>
+        <!-- تبويب: القوائم وإضافة المنتجات -->
+        <div id="dashProducts" class="hidden">
+          <div class="panel-grid">
+            <div class="panel-card">
+              <h3 id="productFormTitle">إضافة منتج جديد</h3>
+              <form id="productForm">
+                <input type="hidden" id="editProductId">
+                <div class="field"><label>اسم المنتج</label><input class="auth-input" id="pName" required placeholder="مثال: سماعة لاسلكية"></div>
+
+                <div class="field">
+                  <label>القائمة الرئيسية</label>
+                  <select class="auth-input" id="pCategory"></select>
+                </div>
+                <div class="field">
+                  <label>القائمة الفرعية</label>
+                  <select class="auth-input" id="pSubcategory"></select>
+                  <div class="subcat-hint">تتغيّر القائمة الفرعية تلقائياً حسب القائمة الرئيسية المختارة</div>
+                </div>
+
+                <div class="field"><label>النوع / الموديل (اختياري)</label><input class="auth-input" id="pType" placeholder="مثال: قطن 100% — مقاس L"></div>
+
+                <div class="field"><label>السعر (د.ع)</label><input class="auth-input" id="pPrice" type="number" min="0" step="250" required></div>
+                <div class="field"><label>الكمية المتوفرة</label><input class="auth-input" id="pStock" type="number" min="0" required></div>
+                <div class="field"><label>وصف المنتج</label><textarea class="auth-input" id="pDesc" rows="3" placeholder="اكتب وصفاً واضحاً يساعد المشتري على اتخاذ القرار"></textarea></div>
+
+                <div class="field">
+                  <label>صورة المنتج</label>
+                  <div class="upload-row">
+                    <img class="img-preview" id="pImgPreview" src="" style="display:none;">
+                    <input type="file" id="pImageFile" accept="image/*">
+                  </div>
+                  <input class="auth-input" id="pImageUrl" placeholder="أو الصق رابط صورة مباشر (اختياري)" style="margin-top:8px;">
+                </div>
+
+                <div class="field">
+                  <label>أيقونة احتياطية (تظهر إن لم تُرفع صورة)</label>
+                  <div class="img-emoji-picker" id="emojiPicker"></div>
+                  <input type="hidden" id="pEmoji" value="🛍️">
+                </div>
+
+                <button class="btn" type="submit" id="productFormBtn">حفظ المنتج</button>
+                <button class="btn outline hidden" type="button" id="cancelEditBtn" style="margin-top:8px;">إلغاء التعديل</button>
+              </form>
+            </div>
+
+            <div>
+              <h3 style="font-size:18px;margin-bottom:12px;">منتجاتك الحالية</h3>
+              <div class="grid" id="myProductsGrid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -547,8 +550,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
     <div class="bn-item active" data-view="store"><span class="ic">🏬</span>المتجر</div>
     <div class="bn-item" id="bnCart"><span class="ic">🛒</span>السلة<span class="bn-badge hidden" id="bnCartCount">0</span></div>
     <div class="bn-item" data-view="orders"><span class="ic">📦</span>طلباتي</div>
-    <div class="bn-item hidden" id="bnAdmin" data-view="admin"><span class="ic">⚙️</span>الإدارة</div>
-    <div class="bn-item hidden" id="bnAddProduct" data-view="addproduct"><span class="ic">🔒</span>إضافة</div>
+    <div class="bn-item" id="bnAdmin" data-view="admin"><span class="ic">🔒</span>الإدارة</div>
   </div>
 </div>
 
@@ -564,7 +566,7 @@ input.auth-input:focus,select.auth-input:focus{border-color:var(--emerald);backg
     <div class="em">🛒</div><div>سلتك فارغة حالياً</div>
   </div>
   <div class="drawer-foot" id="cartFoot">
-    <div class="total-row"><span>الإجمالي</span><b id="cartTotal">0 ر.س</b></div>
+    <div class="total-row"><span>الإجمالي</span><b id="cartTotal">0 د.ع</b></div>
     <button class="btn gold" id="checkoutBtn">إتمام الطلب</button>
   </div>
 </div>
@@ -688,7 +690,7 @@ function toast(msg, type=""){
   host.appendChild(t);
   setTimeout(()=> t.remove(), 2600);
 }
-function money(n){ return Number(n).toLocaleString('ar-SA',{maximumFractionDigits:2}) + ' ر.س'; }
+function money(n){ return Math.round(Number(n)).toLocaleString('ar-IQ') + ' د.ع'; }
 function el(sel){ return document.querySelector(sel); }
 
 /* --------------------------------------------------------------
@@ -769,19 +771,14 @@ function bootApp(user){
   el('#appScreen').classList.remove('hidden');
   el('#welcomeName').textContent = user.username;
 
-  if(user.role === 'owner'){
-    el('#navAdmin').classList.remove('hidden');
-    el('#bnAdmin').classList.remove('hidden');
-    el('#navAddProduct').classList.remove('hidden');
-    el('#bnAddProduct').classList.remove('hidden');
-    isGateUnlocked = sessionStorage.getItem('gateUnlocked_'+user.username) === '1';
-    if(isGateUnlocked){ el('#accessGate').classList.add('hidden'); el('#addProductArea').classList.remove('hidden'); }
-  }
+  listenAdminOrders();
+  listenUserCount();
+  isGateUnlocked = sessionStorage.getItem('gateUnlocked_'+user.username) === '1';
+  if(isGateUnlocked){ el('#accessGate').classList.add('hidden'); el('#addProductArea').classList.remove('hidden'); }
 
   listenProducts();
   listenCart();
   listenMyOrders();
-  if(user.role === 'owner'){ listenAdminOrders(); listenUserCount(); }
   buildEmojiPicker();
   buildCategorySelects();
 }
@@ -814,14 +811,14 @@ el('#accessCodeInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e
 /* --------------------------------------------------------------
    التنقل بين العروض (المتجر / طلباتي / لوحة التحكم)
    -------------------------------------------------------------- */
-const VIEW_IDS = {store:'viewStore', orders:'viewOrders', admin:'viewAdmin', addproduct:'viewAddProduct'};
+const VIEW_IDS = {store:'viewStore', orders:'viewOrders', admin:'viewAdmin'};
 function switchView(view){
   Object.keys(VIEW_IDS).forEach(v=>{
     el('#'+VIEW_IDS[v]).classList.toggle('hidden', v!==view);
   });
   document.querySelectorAll('.nav-desktop .nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.view===view));
   document.querySelectorAll('.bottom-nav .bn-item[data-view]').forEach(b=> b.classList.toggle('active', b.dataset.view===view));
-  if(view === 'addproduct' && !isGateUnlocked){
+  if(view === 'admin' && !isGateUnlocked){
     el('#accessGate').classList.remove('hidden');
     el('#addProductArea').classList.add('hidden');
     el('#accessCodeInput').value = '';
@@ -830,6 +827,16 @@ function switchView(view){
   }
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+/* تبويبات داخل لوحة التحكم */
+function switchDashTab(tab){
+  el('#dashOverview').classList.toggle('hidden', tab!=='overview');
+  el('#dashProducts').classList.toggle('hidden', tab!=='products');
+  el('#dashTabOverview').classList.toggle('active', tab==='overview');
+  el('#dashTabProducts').classList.toggle('active', tab==='products');
+}
+el('#dashTabOverview').addEventListener('click', ()=> switchDashTab('overview'));
+el('#dashTabProducts').addEventListener('click', ()=> switchDashTab('products'));
 document.querySelectorAll('.nav-desktop .nav-btn, .bottom-nav .bn-item[data-view]').forEach(btn=>{
   btn.addEventListener('click', ()=> switchView(btn.dataset.view));
 });
@@ -1228,7 +1235,8 @@ function startEditProduct(id){
   el('#productFormTitle').textContent = 'تعديل المنتج';
   el('#productFormBtn').textContent = 'حفظ التعديلات';
   el('#cancelEditBtn').classList.remove('hidden');
-  switchView('addproduct');
+  switchView('admin');
+  switchDashTab('products');
   if(isGateUnlocked) el('#productForm').scrollIntoView({behavior:'smooth'});
 }
 function cancelEdit(){
@@ -1327,7 +1335,7 @@ function listenAdminOrders(){
     orders.sort((a,b)=> (b.createdAtISO||'').localeCompare(a.createdAtISO||''));
     renderAdminOrders(orders);
     el('#admStatOrders').textContent = orders.length;
-    el('#admStatRevenue').textContent = orders.reduce((s,o)=>s+(o.total||0),0).toLocaleString('ar-SA');
+    el('#admStatRevenue').textContent = Math.round(orders.reduce((s,o)=>s+(o.total||0),0)).toLocaleString('ar-IQ');
     el('#admStatProducts').textContent = allProducts.length;
   });
 }
